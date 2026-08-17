@@ -1,0 +1,120 @@
+@model KassabuchViewModel
+@{
+    ViewData["Title"] = "Übersicht";
+    var waehrung = CultureInfo.GetCultureInfo("de-AT");
+    var monate = new[] { "Jänner", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember" };
+}
+
+<section class="intro">
+    <div>
+        <span class="eyebrow">DIGITALES KASSENBLATT</span>
+        <h1>Jeder Beleg.<br />Jeder Betrag. Klar.</h1>
+        <p>Trage Bareinnahmen und Barausgaben ein. Der laufende Kassenstand wird automatisch berechnet.</p>
+    </div>
+    <div class="cash-balance">
+        <span>Aktueller Kassenstand</span>
+        <strong>@Model.Kassenstand.ToString("C", waehrung)</strong>
+    </div>
+</section>
+
+<section class="totals" aria-label="Summen">
+    <div><span>Einnahmen im Filter</span><strong class="income">+ @Model.SummeEinnahmen.ToString("C", waehrung)</strong></div>
+    <div><span>Ausgaben im Filter</span><strong class="expense">− @Model.SummeAusgaben.ToString("C", waehrung)</strong></div>
+    <div><span>Angezeigte Belege</span><strong>@Model.Zeilen.Count</strong></div>
+</section>
+
+<div class="book-layout">
+    <div>
+        <section class="paper filter-paper">
+            <form method="get" class="filter-form">
+                <div><span class="eyebrow">ZEITRAUM</span><h2>Monat auswählen</h2></div>
+                <label>Monat
+                    <select class="form-select" name="monat">
+                        <option value="">Alle Monate</option>
+                        @for (var i = 0; i < monate.Length; i++)
+                        {
+                            <option value="@(i + 1)" selected="@(Model.Monat == i + 1)">@monate[i]</option>
+                        }
+                    </select>
+                </label>
+                <label>Jahr
+                    <input class="form-control" name="jahr" type="number" min="2000" max="2100" value="@Model.Jahr" placeholder="Alle Jahre" />
+                </label>
+                <button class="btn btn-dark" type="submit">Anzeigen</button>
+                <a class="reset-link" asp-action="Index">Zurücksetzen</a>
+            </form>
+        </section>
+
+        <section class="paper mt-3 ledger">
+            <div class="section-heading"><div><span class="eyebrow">KASSENBLATT</span><h2>Buchungszeilen</h2></div><span class="document-count">@Model.Zeilen.Count Belege</span></div>
+            @if (Model.Zeilen.Count == 0)
+            {
+                <div class="empty-state">Für diesen Zeitraum wurden keine Belege gefunden.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Datum</th><th>Beleg</th><th>Buchungstext</th><th class="text-end">Einnahme</th><th class="text-end">Ausgabe</th><th class="text-end">Saldo</th><th></th></tr></thead>
+                        <tbody>
+                        @foreach (var zeile in Model.Zeilen)
+                        {
+                            <tr>
+                                <td>@zeile.Buchung.Datum.ToString("dd.MM.yy")</td>
+                                <td><span class="receipt">@zeile.Buchung.Belegnummer</span></td>
+                                <td><strong>@zeile.Buchung.Buchungstext</strong></td>
+                                <td class="text-end income">@(zeile.Buchung.Einnahme > 0 ? zeile.Buchung.Einnahme.ToString("C", waehrung) : "—")</td>
+                                <td class="text-end expense">@(zeile.Buchung.Ausgabe > 0 ? zeile.Buchung.Ausgabe.ToString("C", waehrung) : "—")</td>
+                                <td class="text-end saldo">@zeile.LaufenderSaldo.ToString("C", waehrung)</td>
+                                <td class="text-end">
+                                    <form asp-action="Loeschen" method="post" onsubmit="return confirm('Beleg wirklich löschen? Der Saldo wird neu berechnet.');">
+                                        <input type="hidden" name="id" value="@zeile.Buchung.Id" />
+                                        <button class="delete-button" type="submit" aria-label="Beleg @zeile.Buchung.Belegnummer löschen">×</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+
+    <aside class="paper entry-form">
+        <span class="eyebrow">NEUER BELEG</span>
+        <h2>Buchung eintragen</h2>
+        <p class="form-help">Fülle entweder Einnahme oder Ausgabe aus.</p>
+        <form asp-action="Anlegen" method="post">
+            <div asp-validation-summary="All" class="text-danger validation-box"></div>
+            <label asp-for="NeueBuchung.Belegnummer"></label>
+            <input asp-for="NeueBuchung.Belegnummer" class="form-control" placeholder="z. B. B-004" />
+            <span asp-validation-for="NeueBuchung.Belegnummer" class="text-danger small"></span>
+
+            <label asp-for="NeueBuchung.Datum"></label>
+            <input asp-for="NeueBuchung.Datum" class="form-control" type="date" />
+            <span asp-validation-for="NeueBuchung.Datum" class="text-danger small"></span>
+
+            <label asp-for="NeueBuchung.Buchungstext"></label>
+            <input asp-for="NeueBuchung.Buchungstext" class="form-control" placeholder="Was wurde bezahlt?" />
+            <span asp-validation-for="NeueBuchung.Buchungstext" class="text-danger small"></span>
+
+            <div class="amount-fields">
+                <div><label asp-for="NeueBuchung.Einnahme"></label><input asp-for="NeueBuchung.Einnahme" class="form-control income-input" type="number" min="0" step="0.01" /></div>
+                <div><label asp-for="NeueBuchung.Ausgabe"></label><input asp-for="NeueBuchung.Ausgabe" class="form-control expense-input" type="number" min="0" step="0.01" /></div>
+            </div>
+            <button class="btn btn-primary w-100 mt-3" type="submit">Beleg verbuchen</button>
+        </form>
+    </aside>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Sobald eine Seite befüllt wird, leeren wir die andere Seite automatisch.
+        const einnahme = document.getElementById('NeueBuchung_Einnahme');
+        const ausgabe = document.getElementById('NeueBuchung_Ausgabe');
+        einnahme.addEventListener('input', () => { if (Number(einnahme.value) > 0) ausgabe.value = '0'; });
+        ausgabe.addEventListener('input', () => { if (Number(ausgabe.value) > 0) einnahme.value = '0'; });
+    </script>
+}

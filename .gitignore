@@ -1,0 +1,8 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+kassabuch.db
+kassabuch.db-shm
+kassabuch.db-wal
