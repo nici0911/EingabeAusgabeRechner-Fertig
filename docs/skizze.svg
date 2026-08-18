@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="760" viewBox="0 0 1100 760">
+  <rect width="1100" height="760" fill="#f5f1e8"/>
+  <g fill="none" stroke="#30383b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M42 35 Q260 29 530 37 T1054 34 L1058 96 Q760 101 42 94 Z"/>
+    <path d="M62 52 L96 52 L96 80 L62 80 Z"/><path d="M110 66 L235 64"/><path d="M892 54 L1034 53 L1032 82 L891 81 Z"/>
+    <path d="M43 116 Q400 109 1053 116 L1057 219 Q620 224 45 217 Z"/>
+    <path d="M70 140 L270 138 M70 169 L350 166 M780 139 L1020 139 L1018 194 L779 193 Z"/>
+    <path d="M44 238 Q480 231 1057 240 L1055 303 Q500 308 42 301 Z"/>
+    <path d="M62 253 L199 253 L198 287 L62 287 Z M214 252 L351 254 L349 286 L213 287 Z M366 253 L503 252 L505 287 L365 287 Z M520 254 L657 252 L657 288 L520 286 Z M673 253 L811 254 L812 286 L674 287 Z M827 254 L1035 253 L1035 287 L827 288 Z"/>
+    <path d="M43 326 Q210 320 754 327 L758 691 Q400 697 44 690 Z"/>
+    <path d="M775 326 Q920 320 1057 326 L1055 691 Q915 697 778 689 Z"/>
+    <path d="M65 351 L259 350 M65 384 L734 382 M65 419 L733 418 M64 456 L734 454 M65 493 L733 490 M64 528 L734 528"/>
+    <path d="M65 569 L248 568 M65 603 L733 604 M65 641 L733 641 M65 673 L733 674"/>
+    <path d="M798 350 L984 349 M798 390 L1031 390 M798 432 L1030 431 M798 474 L1030 474 M798 515 L1030 515 M798 557 L1030 557 M799 600 L1030 600 L1030 640 L800 640 Z"/>
+  </g>
+  <g fill="#30383b" font-family="Comic Sans MS, Segoe Print, cursive" font-size="18">
+    <text x="112" y="73">Kassabuch</text><text x="910" y="74">Kontostand</text>
+    <text x="70" y="136">Titel und kurzer Hinweis</text><text x="792" y="172">aktueller Betrag</text>
+    <text x="57" y="232">Kennzahlen: Einnahmen · Ausgaben · Durchschnitt · größte Beträge</text>
+    <text x="57" y="322">Transaktionen und Bericht</text><text x="789" y="322">Eingabe</text>
+    <text x="78" y="377">Filter + Tabelle</text><text x="78" y="563">Tages-/Wochen-/Monatsbericht</text>
+    <text x="804" y="378">Belegnummer</text><text x="804" y="420">Datum</text><text x="804" y="462">Beschreibung</text><text x="804" y="505">Kategorie</text><text x="804" y="547">Beträge</text><text x="862" y="628">Speichern</text>
+  </g>
+  <text x="45" y="735" fill="#7b6650" font-family="Comic Sans MS, Segoe Print, cursive" font-size="16">Skizze der geplanten Hauptansicht – Kästen absichtlich von Hand gezeichnet</text>
+</svg>

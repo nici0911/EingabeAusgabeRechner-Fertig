@@ -1,75 +1,100 @@
+@using Kassabuch.Konfiguration
 @model KassabuchViewModel
 @{
-    ViewData["Title"] = "Übersicht";
+    ViewData["Title"] = "Kassabuch";
     var waehrung = CultureInfo.GetCultureInfo("de-AT");
-    var monate = new[] { "Jänner", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember" };
+    var maxDatum = PruefungsEinstellungen.MaxDatum.ToString("yyyy-MM-dd");
 }
 
-<section class="intro">
+<section class="dashboard-head">
     <div>
-        <span class="eyebrow">DIGITALES KASSENBLATT</span>
-        <h1>Jeder Beleg.<br />Jeder Betrag. Klar.</h1>
-        <p>Trage Bareinnahmen und Barausgaben ein. Der laufende Kassenstand wird automatisch berechnet.</p>
+        <p class="kicker">Finanzübersicht</p>
+        <h1>Kassabuch</h1>
+        <p class="muted">Einnahmen und Ausgaben bis zum Prüfungstag verwalten.</p>
     </div>
-    <div class="cash-balance">
-        <span>Aktueller Kassenstand</span>
-        <strong>@Model.Kassenstand.ToString("C", waehrung)</strong>
+    <div class="balance-box">
+        <span>Aktueller Kontostand</span>
+        <strong class="@(Model.Kassenstand < 0 ? "expense" : "income")">@Model.Kassenstand.ToString("C", waehrung)</strong>
     </div>
 </section>
 
-<section class="totals" aria-label="Summen">
-    <div><span>Einnahmen im Filter</span><strong class="income">+ @Model.SummeEinnahmen.ToString("C", waehrung)</strong></div>
-    <div><span>Ausgaben im Filter</span><strong class="expense">− @Model.SummeAusgaben.ToString("C", waehrung)</strong></div>
-    <div><span>Angezeigte Belege</span><strong>@Model.Zeilen.Count</strong></div>
+<section class="summary-grid" aria-label="Summen der aktuellen Auswahl">
+    <article><span>Einnahmen</span><strong class="income">@Model.SummeEinnahmen.ToString("C", waehrung)</strong></article>
+    <article><span>Ausgaben</span><strong class="expense">@Model.SummeAusgaben.ToString("C", waehrung)</strong></article>
+    <article><span>Ø Einnahme</span><strong>@Model.DurchschnittEinnahmen.ToString("C", waehrung)</strong></article>
+    <article><span>Ø Ausgabe</span><strong>@Model.DurchschnittAusgaben.ToString("C", waehrung)</strong></article>
+    <article><span>Größte Einnahme</span><strong>@Model.GroessteEinnahme.ToString("C", waehrung)</strong></article>
+    <article><span>Größte Ausgabe</span><strong>@Model.GroessteAusgabe.ToString("C", waehrung)</strong></article>
 </section>
 
-<div class="book-layout">
-    <div>
-        <section class="paper filter-paper">
-            <form method="get" class="filter-form">
-                <div><span class="eyebrow">ZEITRAUM</span><h2>Monat auswählen</h2></div>
-                <label>Monat
-                    <select class="form-select" name="monat">
-                        <option value="">Alle Monate</option>
-                        @for (var i = 0; i < monate.Length; i++)
-                        {
-                            <option value="@(i + 1)" selected="@(Model.Monat == i + 1)">@monate[i]</option>
-                        }
-                    </select>
-                </label>
-                <label>Jahr
-                    <input class="form-control" name="jahr" type="number" min="2000" max="2100" value="@Model.Jahr" placeholder="Alle Jahre" />
-                </label>
-                <button class="btn btn-dark" type="submit">Anzeigen</button>
-                <a class="reset-link" asp-action="Index">Zurücksetzen</a>
-            </form>
-        </section>
+<section class="panel filter-panel">
+    <div class="section-title"><div><p class="kicker">Suchen und ordnen</p><h2>Filter</h2></div><a asp-action="Index" class="text-link">Alle Filter löschen</a></div>
+    <form method="get" class="filter-grid">
+        <label>Text oder Belegnummer
+            <input class="form-control" name="Suche" value="@Model.Filter.Suche" placeholder="z. B. Miete" />
+        </label>
+        <label>Von
+            <input class="form-control" type="date" name="Von" value="@(Model.Filter.Von?.ToString("yyyy-MM-dd"))" max="@maxDatum" />
+        </label>
+        <label>Bis
+            <input class="form-control" type="date" name="Bis" value="@(Model.Filter.Bis?.ToString("yyyy-MM-dd"))" max="@maxDatum" />
+        </label>
+        <label>Kategorie
+            <select class="form-select" name="KategorieId">
+                <option value="">Alle</option>
+                @foreach (var kategorie in Model.Kategorien)
+                {
+                    <option value="@kategorie.Id" selected="@(Model.Filter.KategorieId == kategorie.Id)">@kategorie.Name</option>
+                }
+            </select>
+        </label>
+        <label>Betrag von
+            <input class="form-control" type="number" min="0" step="0.01" name="Mindestbetrag" value="@Model.Filter.Mindestbetrag" />
+        </label>
+        <label>Betrag bis
+            <input class="form-control" type="number" min="0" step="0.01" name="Hoechstbetrag" value="@Model.Filter.Hoechstbetrag" />
+        </label>
+        <label>Sortierung
+            <select class="form-select" name="Sortierung">
+                <option value="datum_ab" selected="@(Model.Filter.Sortierung == "datum_ab")">Datum absteigend</option>
+                <option value="datum_auf" selected="@(Model.Filter.Sortierung == "datum_auf")">Datum aufsteigend</option>
+                <option value="betrag_ab" selected="@(Model.Filter.Sortierung == "betrag_ab")">Betrag absteigend</option>
+                <option value="betrag_auf" selected="@(Model.Filter.Sortierung == "betrag_auf")">Betrag aufsteigend</option>
+            </select>
+        </label>
+        <button class="btn-main" type="submit">Anwenden</button>
+    </form>
+</section>
 
-        <section class="paper mt-3 ledger">
-            <div class="section-heading"><div><span class="eyebrow">KASSENBLATT</span><h2>Buchungszeilen</h2></div><span class="document-count">@Model.Zeilen.Count Belege</span></div>
+<div class="main-grid">
+    <div class="content-stack">
+        <section class="panel">
+            <div class="section-title"><div><p class="kicker">Übersicht</p><h2>Transaktionen</h2></div><span class="count">@Model.Zeilen.Count Einträge</span></div>
             @if (Model.Zeilen.Count == 0)
             {
-                <div class="empty-state">Für diesen Zeitraum wurden keine Belege gefunden.</div>
+                <p class="empty">Keine passenden Transaktionen gefunden.</p>
             }
             else
             {
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead><tr><th>Datum</th><th>Beleg</th><th>Buchungstext</th><th class="text-end">Einnahme</th><th class="text-end">Ausgabe</th><th class="text-end">Saldo</th><th></th></tr></thead>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Datum</th><th>Beleg</th><th>Beschreibung</th><th>Kategorie</th><th class="number">Einnahme</th><th class="number">Ausgabe</th><th class="number">Saldo</th><th>Aktion</th></tr></thead>
                         <tbody>
                         @foreach (var zeile in Model.Zeilen)
                         {
                             <tr>
-                                <td>@zeile.Buchung.Datum.ToString("dd.MM.yy")</td>
-                                <td><span class="receipt">@zeile.Buchung.Belegnummer</span></td>
-                                <td><strong>@zeile.Buchung.Buchungstext</strong></td>
-                                <td class="text-end income">@(zeile.Buchung.Einnahme > 0 ? zeile.Buchung.Einnahme.ToString("C", waehrung) : "—")</td>
-                                <td class="text-end expense">@(zeile.Buchung.Ausgabe > 0 ? zeile.Buchung.Ausgabe.ToString("C", waehrung) : "—")</td>
-                                <td class="text-end saldo">@zeile.LaufenderSaldo.ToString("C", waehrung)</td>
-                                <td class="text-end">
-                                    <form asp-action="Loeschen" method="post" onsubmit="return confirm('Beleg wirklich löschen? Der Saldo wird neu berechnet.');">
+                                <td>@zeile.Buchung.Datum.ToString("dd.MM.yyyy")</td>
+                                <td>@zeile.Buchung.Belegnummer</td>
+                                <td>@zeile.Buchung.Buchungstext</td>
+                                <td><span class="category"><i style="background:@zeile.Buchung.Kategorie.Farbe"></i>@zeile.Buchung.Kategorie.Name</span></td>
+                                <td class="number income">@(zeile.Buchung.Einnahme > 0 ? zeile.Buchung.Einnahme.ToString("C", waehrung) : "–")</td>
+                                <td class="number expense">@(zeile.Buchung.Ausgabe > 0 ? zeile.Buchung.Ausgabe.ToString("C", waehrung) : "–")</td>
+                                <td class="number">@zeile.LaufenderSaldo.ToString("C", waehrung)</td>
+                                <td class="actions">
+                                    <a asp-action="Index" asp-route-bearbeiten="@zeile.Buchung.Id" class="small-link">Bearbeiten</a>
+                                    <form asp-action="Loeschen" method="post" onsubmit="return confirm('Buchung wirklich löschen?');">
                                         <input type="hidden" name="id" value="@zeile.Buchung.Id" />
-                                        <button class="delete-button" type="submit" aria-label="Beleg @zeile.Buchung.Belegnummer löschen">×</button>
+                                        <button class="link-danger" type="submit">Löschen</button>
                                     </form>
                                 </td>
                             </tr>
@@ -79,42 +104,101 @@
                 </div>
             }
         </section>
+
+        <section class="panel">
+            <div class="section-title"><div><p class="kicker">Auswertung</p><h2>Bericht</h2></div></div>
+            <form method="get" class="report-choice">
+                <input type="hidden" name="Suche" value="@Model.Filter.Suche" />
+                <input type="hidden" name="Von" value="@(Model.Filter.Von?.ToString("yyyy-MM-dd"))" />
+                <input type="hidden" name="Bis" value="@(Model.Filter.Bis?.ToString("yyyy-MM-dd"))" />
+                <input type="hidden" name="KategorieId" value="@Model.Filter.KategorieId" />
+                <input type="hidden" name="Mindestbetrag" value="@Model.Filter.Mindestbetrag" />
+                <input type="hidden" name="Hoechstbetrag" value="@Model.Filter.Hoechstbetrag" />
+                <input type="hidden" name="Sortierung" value="@Model.Filter.Sortierung" />
+                <select class="form-select" name="Bericht">
+                    <option value="tag" selected="@(Model.Filter.Bericht == "tag")">Täglich</option>
+                    <option value="woche" selected="@(Model.Filter.Bericht == "woche")">Wöchentlich</option>
+                    <option value="monat" selected="@(Model.Filter.Bericht == "monat")">Monatlich</option>
+                </select>
+                <button class="btn-secondary" type="submit">Bericht anzeigen</button>
+            </form>
+            <div class="table-wrap compact-table">
+                <table>
+                    <thead><tr><th>Zeitraum</th><th class="number">Einnahmen</th><th class="number">Ausgaben</th><th class="number">Ergebnis</th></tr></thead>
+                    <tbody>
+                    @foreach (var zeile in Model.Bericht)
+                    {
+                        <tr><td>@zeile.Zeitraum</td><td class="number income">@zeile.Einnahmen.ToString("C", waehrung)</td><td class="number expense">@zeile.Ausgaben.ToString("C", waehrung)</td><td class="number">@zeile.Saldo.ToString("C", waehrung)</td></tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
-    <aside class="paper entry-form">
-        <span class="eyebrow">NEUER BELEG</span>
-        <h2>Buchung eintragen</h2>
-        <p class="form-help">Fülle entweder Einnahme oder Ausgabe aus.</p>
-        <form asp-action="Anlegen" method="post">
-            <div asp-validation-summary="All" class="text-danger validation-box"></div>
-            <label asp-for="NeueBuchung.Belegnummer"></label>
-            <input asp-for="NeueBuchung.Belegnummer" class="form-control" placeholder="z. B. B-004" />
-            <span asp-validation-for="NeueBuchung.Belegnummer" class="text-danger small"></span>
+    <aside class="content-stack">
+        <section class="panel form-panel">
+            @if (Model.Bearbeitung is not null && Model.BearbeitenId.HasValue)
+            {
+                <p class="kicker">Ausgewählter Eintrag</p><h2>Buchung bearbeiten</h2>
+                <form asp-action="Bearbeiten" method="post">
+                    <input type="hidden" name="id" value="@Model.BearbeitenId" />
+                    <div asp-validation-summary="All" class="validation"></div>
+                    <label>Belegnummer<input class="form-control" name="Bearbeitung.Belegnummer" maxlength="@PruefungsEinstellungen.BelegnummerMaxZeichen" value="@Model.Bearbeitung.Belegnummer" /></label>
+                    <label>Datum<input class="form-control" type="date" name="Bearbeitung.Datum" max="@maxDatum" value="@Model.Bearbeitung.Datum.ToString("yyyy-MM-dd")" /></label>
+                    <label>Beschreibung<input class="form-control" name="Bearbeitung.Buchungstext" maxlength="@PruefungsEinstellungen.BeschreibungMaxZeichen" value="@Model.Bearbeitung.Buchungstext" /></label>
+                    <label>Kategorie<select class="form-select" name="Bearbeitung.KategorieId">@foreach (var kategorie in Model.Kategorien) { <option value="@kategorie.Id" selected="@(Model.Bearbeitung.KategorieId == kategorie.Id)">@kategorie.Name</option> }</select></label>
+                    <div class="amount-grid"><label>Einnahme<input class="form-control amount-income" type="number" min="0" step="0.01" name="Bearbeitung.Einnahme" value="@Model.Bearbeitung.Einnahme" /></label><label>Ausgabe<input class="form-control amount-expense" type="number" min="0" step="0.01" name="Bearbeitung.Ausgabe" value="@Model.Bearbeitung.Ausgabe" /></label></div>
+                    <button class="btn-main full" type="submit">Änderungen speichern</button>
+                    <a asp-action="Index" class="cancel-link">Abbrechen</a>
+                </form>
+            }
+            else
+            {
+                <p class="kicker">Neuer Eintrag</p><h2>Buchung hinzufügen</h2>
+                <form asp-action="Anlegen" method="post">
+                    <div asp-validation-summary="All" class="validation"></div>
+                    <label asp-for="NeueBuchung.Belegnummer"></label>
+                    <input asp-for="NeueBuchung.Belegnummer" class="form-control" maxlength="@PruefungsEinstellungen.BelegnummerMaxZeichen" placeholder="z. B. B-104" />
+                    <label asp-for="NeueBuchung.Datum"></label>
+                    <input asp-for="NeueBuchung.Datum" class="form-control" type="date" max="@maxDatum" />
+                    <label asp-for="NeueBuchung.Buchungstext"></label>
+                    <input asp-for="NeueBuchung.Buchungstext" class="form-control" maxlength="@PruefungsEinstellungen.BeschreibungMaxZeichen" placeholder="Kurze Beschreibung" />
+                    <label asp-for="NeueBuchung.KategorieId"></label>
+                    <select asp-for="NeueBuchung.KategorieId" class="form-select"><option value="0">Bitte wählen</option>@foreach (var kategorie in Model.Kategorien) { <option value="@kategorie.Id">@kategorie.Name</option> }</select>
+                    <div class="amount-grid"><label asp-for="NeueBuchung.Einnahme"></label><input asp-for="NeueBuchung.Einnahme" class="form-control amount-income" type="number" min="0" step="0.01" /><label asp-for="NeueBuchung.Ausgabe"></label><input asp-for="NeueBuchung.Ausgabe" class="form-control amount-expense" type="number" min="0" step="0.01" /></div>
+                    <button class="btn-main full" type="submit">Buchung speichern</button>
+                </form>
+            }
+            <p class="date-note">Spätestes Datum: 26.08.2026</p>
+        </section>
 
-            <label asp-for="NeueBuchung.Datum"></label>
-            <input asp-for="NeueBuchung.Datum" class="form-control" type="date" />
-            <span asp-validation-for="NeueBuchung.Datum" class="text-danger small"></span>
-
-            <label asp-for="NeueBuchung.Buchungstext"></label>
-            <input asp-for="NeueBuchung.Buchungstext" class="form-control" placeholder="Was wurde bezahlt?" />
-            <span asp-validation-for="NeueBuchung.Buchungstext" class="text-danger small"></span>
-
-            <div class="amount-fields">
-                <div><label asp-for="NeueBuchung.Einnahme"></label><input asp-for="NeueBuchung.Einnahme" class="form-control income-input" type="number" min="0" step="0.01" /></div>
-                <div><label asp-for="NeueBuchung.Ausgabe"></label><input asp-for="NeueBuchung.Ausgabe" class="form-control expense-input" type="number" min="0" step="0.01" /></div>
+        <section class="panel">
+            <p class="kicker">Verwaltung</p><h2>Kategorien</h2>
+            <form asp-action="KategorieAnlegen" method="post" class="category-form">
+                <input asp-for="NeueKategorie.Name" class="form-control" maxlength="@PruefungsEinstellungen.KategorieMaxZeichen" placeholder="Neue Kategorie" />
+                <input asp-for="NeueKategorie.Farbe" type="color" aria-label="Kategoriefarbe" />
+                <button class="btn-secondary" type="submit">Hinzufügen</button>
+            </form>
+            <div class="category-list">
+                @foreach (var kategorie in Model.Kategorien)
+                {
+                    <div><span class="category"><i style="background:@kategorie.Farbe"></i>@kategorie.Name</span><form asp-action="KategorieLoeschen" method="post"><input type="hidden" name="id" value="@kategorie.Id" /><button class="link-danger" type="submit">Löschen</button></form></div>
+                }
             </div>
-            <button class="btn btn-primary w-100 mt-3" type="submit">Beleg verbuchen</button>
-        </form>
+        </section>
     </aside>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Sobald eine Seite befüllt wird, leeren wir die andere Seite automatisch.
-        const einnahme = document.getElementById('NeueBuchung_Einnahme');
-        const ausgabe = document.getElementById('NeueBuchung_Ausgabe');
-        einnahme.addEventListener('input', () => { if (Number(einnahme.value) > 0) ausgabe.value = '0'; });
-        ausgabe.addEventListener('input', () => { if (Number(ausgabe.value) > 0) einnahme.value = '0'; });
+        // In einer Buchung darf immer nur Einnahme oder Ausgabe befüllt sein.
+        document.querySelectorAll('.amount-grid').forEach(group => {
+            const income = group.querySelector('.amount-income');
+            const expense = group.querySelector('.amount-expense');
+            income?.addEventListener('input', () => { if (Number(income.value) > 0) expense.value = '0'; });
+            expense?.addEventListener('input', () => { if (Number(expense.value) > 0) income.value = '0'; });
+        });
     </script>
 }

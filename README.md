@@ -1,23 +1,26 @@
-# Kassabuch
+# Kassabuch – fertige Version
 
-Eigenständige C#-Webanwendung mit ASP.NET Core MVC und SQLite. Sie führt ein klassisches Kassabuch mit Belegnummer, Einnahme, Ausgabe und automatisch berechnetem laufendem Saldo.
+Diese Version erfüllt alle verpflichtenden Punkte der Angabe. Die optionale Mehrbenutzer-Anmeldung ist als freiwillige Erweiterung gekennzeichnet und nicht Teil dieser Variante.
 
 ## Start in Visual Studio
 
-1. `Kassabuch.sln` doppelt anklicken.
-2. Oben als Startprojekt **Kassabuch** auswählen.
-3. Mit `F5` oder dem grünen Startknopf ausführen.
+1. `Kassabuch.sln` in Visual Studio öffnen.
+2. Falls nötig die NuGet-Pakete wiederherstellen lassen.
+3. Mit `F5` oder dem Startknopf ausführen.
 
-Beim ersten Start wird `kassabuch.db` automatisch angelegt und mit drei Beispielbelegen gefüllt.
+Die lokale SQLite-Datenbank `kassabuch.db` entsteht automatisch beim ersten Start. Es sind verständliche Beispieldaten enthalten.
 
-## Funktionen
+## Wichtige Dateien
 
-- Belege mit eindeutiger Belegnummer, Datum und Buchungstext erfassen
-- Genau eine Einnahme oder Ausgabe pro Beleg
-- Laufenden Saldo automatisch und chronologisch berechnen
-- Nach Monat und Jahr filtern sowie Filter zurücksetzen
-- Belege löschen und Saldo danach neu berechnen
-- Dauerhafte Speicherung in einer eigenen SQLite-Datenbank
-- Einfach strukturierter, deutsch kommentierter C#-Code
+- `Konfiguration/PruefungsEinstellungen.cs`: Prüfungstag und Zeichenlimits ändern.
+- `Controllers/HomeController.cs`: verarbeitet Formulare und Navigation.
+- `Services/KassabuchService.cs`: Filter, Berechnungen, Berichte und Datenzugriff.
+- `DOKUMENTATION.md`: technische Dokumentation und Anforderungscheck.
+- `BENUTZERHANDBUCH.md`: Bedienung Schritt für Schritt.
+- `docs/skizze.svg`: geplante Ansicht als händisch wirkende Skizze.
 
-Die laut Angabe benötigten Planungsunterlagen stehen vollständig in [DOKUMENTATION.md](DOKUMENTATION.md).
+## Technische Daten
+
+- C# / ASP.NET Core MVC, .NET 9
+- Entity Framework Core
+- SQLite, lokal und ohne Internet nutzbar

@@ -1,119 +1,77 @@
-# Planungsdokumentation – Kassabuch
+# Dokumentation – Kassabuch (fertige Version)
 
-## 1. Ziel der Anwendung
+## Projektziel
 
-Das Kassabuch erfasst Bargeldbewegungen anhand eindeutiger Belege. Zu jedem Beleg wird entweder eine Einnahme oder eine Ausgabe gespeichert; daraus berechnet die Anwendung automatisch den laufenden Kassenstand.
+Das Programm erfasst Einnahmen und Ausgaben in einer lokalen Datenbank. Das Dashboard zeigt den aktuellen Kontostand, gefilterte Summen, Durchschnittswerte und größte Beträge. Die Oberfläche ist bewusst schlicht gehalten, damit die Funktionen bei der Prüfung schnell erklärt werden können.
 
-## 2. Skizze des Datenmodells
+## Status der Anforderungen
 
-### ER-/Datenbankdiagramm
+| Anforderung | Umsetzung |
+|---|---|
+| Dashboard mit aktuellem Kontostand | Erfüllt |
+| Tabelle mit allen Transaktionen | Erfüllt |
+| Einnahmen und Ausgaben mit Betrag, Datum, Beschreibung und Kategorie | Erfüllt |
+| Transaktionen bearbeiten und löschen | Erfüllt |
+| Kategorien in frei wählbaren Farben | Erfüllt |
+| Suche sowie Filter nach Datum, Kategorie und Betrag | Erfüllt |
+| Filter einfach zurücksetzen | Erfüllt |
+| Sortierung nach Datum und Betrag | Erfüllt |
+| Tägliche, wöchentliche und monatliche Berichte | Erfüllt |
+| Lokale Datenbank | Erfüllt (SQLite) |
+| Prüfung beim Löschen verwendeter Kategorien | Erfüllt |
+| Neu angelegte Kategorie erscheint in Auswahl | Erfüllt |
+| Durchschnitt und größter Betrag, auch für gefilterten Tag | Erfüllt |
+| Registrierung und Anmeldung | Nicht umgesetzt; laut Angabe optional |
 
-```mermaid
-erDiagram
-    KASSENBUCHUNG {
-        int Id PK
-        string Belegnummer UK "max. 20 Zeichen, eindeutig"
-        date Datum
-        string Buchungstext "max. 80 Zeichen"
-        decimal Einnahme "0 oder positiver Betrag"
-        decimal Ausgabe "0 oder positiver Betrag"
-    }
-```
-
-Die SQLite-Datenbank enthält die Tabelle `Kassenbuchungen`. Genau eines der beiden Betragsfelder muss größer als null sein; die Belegnummer besitzt einen eindeutigen Index.
-
-### UML-Skizze der Anwendung
-
-```mermaid
-classDiagram
-    HomeController --> IKassabuchService : verwendet
-    IKassabuchService <|.. KassabuchService : implementiert
-    KassabuchService --> KassabuchDbContext : liest und speichert
-    KassabuchDbContext --> Kassenbuchung : verwaltet
-    HomeController --> KassabuchViewModel : liefert an View
-
-    class HomeController {
-        +Index(monat, jahr)
-        +Anlegen(eingabe)
-        +Loeschen(id)
-    }
-    class IKassabuchService {
-        +LadeAsync(monat, jahr)
-        +BuchungAnlegenAsync(eingabe)
-        +BuchungLoeschenAsync(id)
-    }
-    class Kassenbuchung {
-        +Id
-        +Belegnummer
-        +Datum
-        +Buchungstext
-        +Einnahme
-        +Ausgabe
-    }
-```
-
-## 3. Skizze der geplanten Ansichten
-
-### Desktop-Ansicht
+## Datenmodell
 
 ```text
-+------------------------------------------------------------------------------+
-| KB Kassabuch                                  Belege · Einnahmen · Ausgaben  |
-+------------------------------------------------------------------------------+
-| DIGITALES KASSENBLATT                         +----------------------------+ |
-| Jeder Beleg. Jeder Betrag. Klar.              | Aktueller Kassenstand      | |
-|                                               |                  440,70 €  | |
-+------------------------------------------------------------------------------+
-| Einnahmen im Filter | Ausgaben im Filter | Angezeigte Belege               |
-+------------------------------------------------------+-----------------------+
-| Zeitraum: Monat | Jahr | Anzeigen | Zurücksetzen    | Neuer Beleg           |
-+------------------------------------------------------+ Belegnummer           |
-| Datum | Beleg | Buchungstext | Ein | Aus | Saldo    | Datum                 |
-| ...                                                  | Buchungstext          |
-|                                                      | Einnahme | Ausgabe    |
-|                                                      | [Beleg verbuchen]     |
-+------------------------------------------------------+-----------------------+
+Kategorie                         Kassenbuchung
+------------------                -----------------------
+Id (PK)                  1 ---- n Id (PK)
+Name (eindeutig)                  Belegnummer (eindeutig)
+Farbe                             Datum
+                                  Buchungstext
+                                  Einnahme
+                                  Ausgabe
+                                  KategorieId (FK)
 ```
 
-### Mobile Ansicht
+Eine Kategorie kann mehreren Buchungen zugeordnet sein. Eine verwendete Kategorie darf nicht gelöscht werden, damit keine ungültigen Buchungen entstehen.
 
-```text
-+-----------------------------+
-| KB Kassabuch                 |
-+-----------------------------+
-| Überschrift                  |
-| Aktueller Kassenstand        |
-+-----------------------------+
-| Summen untereinander         |
-+-----------------------------+
-| Zeitraumfilter               |
-+-----------------------------+
-| Seitlich scrollbar: Tabelle  |
-+-----------------------------+
-| Formular für neuen Beleg     |
-+-----------------------------+
+## Wichtigste Anwendungsbestandteile
+
+- **HomeController:** Nimmt Formularwerte entgegen, prüft den Zustand und zeigt passende Erfolg- oder Fehlermeldungen. Der Controller enthält absichtlich keine Berechnungslogik.
+- **KassabuchService:** Führt Datenbankzugriffe, Filter, Sortierungen, Statistik, Salden und Berichte aus. Dadurch bleiben Controller und Ansicht übersichtlich.
+- **KassabuchDbContext:** Beschreibt Tabellen, Beziehungen, eindeutige Werte und Dezimalfelder für SQLite.
+- **Razor-Ansicht:** Zeigt Dashboard, Filter, Tabelle, Berichte und Formulare auf einer Seite an.
+
+## Wo Datum und Zeichenlimits geändert werden
+
+Alle prüfungsrelevanten Grenzwerte stehen in `Konfiguration/PruefungsEinstellungen.cs`:
+
+```csharp
+public static readonly DateTime MaxDatum = new(2026, 8, 26);
+public const int BelegnummerMaxZeichen = 20;
+public const int BeschreibungMaxZeichen = 80;
+public const int KategorieMaxZeichen = 30;
 ```
 
-Die Desktop-Ansicht zeigt Kassenblatt und Eingabeformular nebeneinander. Auf kleinen Bildschirmen werden die Bereiche untereinander angeordnet, während die breite Kassentabelle scrollbar bleibt.
+Das Datum wird im HTML-Feld begrenzt und zusätzlich auf dem Server geprüft. Ein veränderter Browserwert kann die Prüfung daher nicht umgehen.
 
-## 4. Wichtigste Anwendungsbestandteile
+## Fehlerbehandlung
 
-**HomeController:** Nimmt Filter- und Formulareingaben entgegen und gibt das fertige ViewModel an die Ansicht weiter. Er prüft zusätzlich, ob eine Belegnummer bereits existiert.
+- Genau eine Seite einer Buchung muss größer als null sein.
+- Belegnummern und Kategorienamen sind eindeutig.
+- Pflichtfelder und Zeichenlimits werden geprüft.
+- Ein Datum nach dem 26.08.2026 wird abgelehnt.
+- Verwendete Kategorien können nicht gelöscht werden.
+- Leere Filterergebnisse werden verständlich angezeigt.
 
-**KassabuchService:** Liest und speichert Kassenbuchungen und berechnet den Saldo chronologisch aus Einnahmen minus Ausgaben. Auch beim Filtern berücksichtigt er frühere Belege für einen korrekten laufenden Saldo.
+## Datenhaltung
 
-**KassabuchDbContext:** Stellt die Verbindung zur SQLite-Datenbank her und definiert Betragsgenauigkeit sowie den eindeutigen Index der Belegnummer. Die Datenbankdatei wird beim ersten Start automatisch erzeugt.
+Die Datei `kassabuch.db` wird beim ersten Start im Projektordner erstellt. `KassabuchSeeder` fügt nur bei leerer Datenbank Beispieldaten hinzu. Alle Beispielbuchungen liegen spätestens am 26.08.2026.
 
-**KassenbuchungEingabe:** Enthält die Validierungsregeln des Eingabeformulars. Es stellt sicher, dass genau eine Einnahme oder Ausgabe größer als null eingetragen wurde.
+## Ansichtsplanung
 
-**KassabuchViewModel:** Bündelt Buchungszeilen, Summen, Kassenstand, Filterwerte und die neue Eingabe für die Ansicht. Dadurch bleibt die Razor View übersichtlich.
-
-**Razor View:** Zeigt Kopfbereich, Summen, Filter, Kassentabelle und Eingabeformular. Ein kleines JavaScript leert automatisch die jeweils andere Betragsseite.
-
-## 5. Validierungs- und Geschäftsregeln
-
-1. Jede Belegnummer ist eindeutig und höchstens 20 Zeichen lang.
-2. Ein Buchungstext ist erforderlich und höchstens 80 Zeichen lang.
-3. Pro Buchung ist genau eine Einnahme oder eine Ausgabe größer als null erlaubt.
-4. Der laufende Saldo wird nach Datum und danach nach interner ID berechnet.
-5. Nach dem Löschen eines Belegs wird der Saldo aus allen verbleibenden Belegen neu berechnet.
+Die Skizze befindet sich unter `docs/skizze.svg`. Oben stehen Titel und Kontostand, darunter Kennzahlen und Filter. Die Hauptfläche teilt sich in Tabelle/Bericht links und Eingabe/Kategorien rechts.

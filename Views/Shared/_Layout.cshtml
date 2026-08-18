@@ -3,27 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] · Kassabuch</title>
+    <title>Kassabuch</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <header class="topbar">
-        <nav class="container nav-content">
-            <a class="brand" asp-controller="Home" asp-action="Index"><span>KB</span>Kassabuch</a>
-            <div class="nav-note">Belege · Einnahmen · Ausgaben · Saldo</div>
-        </nav>
-    </header>
-
-    <main class="container py-4">
-        @if (TempData["Erfolg"] is string erfolg)
-        {
-            <div class="alert alert-success" role="status">@erfolg</div>
-        }
+    <header class="topbar"><nav class="page-width"><a class="brand" asp-controller="Home" asp-action="Index"><span>KB</span>Kassabuch</a><span class="top-note">lokal gespeichert</span></nav></header>
+    <main class="page-width page-content">
+        @if (TempData["Erfolg"] is string erfolg) { <div class="notice success" role="status">@erfolg</div> }
+        @if (TempData["Fehler"] is string fehler) { <div class="notice error" role="alert">@fehler</div> }
         @RenderBody()
     </main>
-
-    <footer class="container footer-note">Einfaches digitales Kassabuch · Lokale SQLite-Datenbank</footer>
+    <footer class="page-width footer">Kassabuch · Prüfungsversion 2026</footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
