@@ -8,7 +8,7 @@ Diese Version erfüllt alle verpflichtenden Punkte der Angabe. Die optionale Meh
 2. Falls nötig die NuGet-Pakete wiederherstellen lassen.
 3. Mit `F5` oder dem Startknopf ausführen.
 
-Die lokale SQLite-Datenbank `kassabuch.db` entsteht automatisch beim ersten Start. Es sind verständliche Beispieldaten enthalten.
+Die lokale SQLite-Datenbank `kassabuch-schulprojekt.db` entsteht automatisch beim ersten Start. Es sind verständliche Beispieldaten enthalten.
 
 ## Wichtige Dateien
 

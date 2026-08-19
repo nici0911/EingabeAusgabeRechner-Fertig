@@ -70,7 +70,7 @@ Das Datum wird im HTML-Feld begrenzt und zusätzlich auf dem Server geprüft. Ei
 
 ## Datenhaltung
 
-Die Datei `kassabuch.db` wird beim ersten Start im Projektordner erstellt. `KassabuchSeeder` fügt nur bei leerer Datenbank Beispieldaten hinzu. Alle Beispielbuchungen liegen spätestens am 26.08.2026.
+Die Datei `kassabuch-schulprojekt.db` wird beim ersten Start im Projektordner erstellt. `KassabuchSeeder` fügt nur bei leerer Datenbank Beispieldaten hinzu. Alle Beispielbuchungen liegen spätestens am 26.08.2026.
 
 ## Ansichtsplanung
 
