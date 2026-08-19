@@ -1,14 +1,14 @@
 @using Kassabuch.Konfiguration
 @model KassabuchViewModel
 @{
-    ViewData["Title"] = "Kassabuch";
+    ViewData["Title"] = "Kassabuch / Einnahmen-Ausgaben-Rechner";
     var waehrung = CultureInfo.GetCultureInfo("de-AT");
     var maxDatum = PruefungsEinstellungen.MaxDatum.ToString("yyyy-MM-dd");
 }
 
 <section class="dashboard-head">
     <div>
-        <h1>Kassabuch</h1>
+        <h1>Kassabuch / Einnahmen-Ausgaben-Rechner</h1>
     </div>
     <div class="balance-box">
         <span>Aktueller Kontostand</span>
