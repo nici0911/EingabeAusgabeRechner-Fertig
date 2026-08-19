@@ -70,7 +70,7 @@ tbody tr:last-child td { border-bottom: 0; }
 .amount-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .amount-income { border-left: 4px solid var(--green); background: var(--green-light); }
 .amount-expense { border-left: 4px solid var(--red); background: var(--red-light); }
-.validation:empty { display: none; }
+.validation:empty, .validation-summary-valid { display: none; }
 .validation { margin-bottom: 10px; padding: 9px; border: 1px solid #dab7b0; background: var(--red-light); color: #7d382e; font-size: .78rem; }
 .validation ul { margin: 0; padding-left: 18px; }
 .category-form { display: grid; grid-template-columns: 1fr 42px auto; align-items: end; gap: 7px; }
