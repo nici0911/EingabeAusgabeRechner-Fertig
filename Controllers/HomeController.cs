@@ -14,6 +14,10 @@ public class HomeController(IKassabuchService kassabuchService) : Controller
     public async Task<IActionResult> Index([FromQuery] KassabuchFilter filter, int? bearbeiten) =>
         View(await kassabuchService.LadeAsync(filter, bearbeiten));
 
+    [HttpGet]
+    public async Task<IActionResult> Kategorien() =>
+        View(await kassabuchService.LadeAsync(new KassabuchFilter()));
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Anlegen([Bind(Prefix = "NeueBuchung")] KassenbuchungEingabe eingabe)
@@ -65,7 +69,7 @@ public class HomeController(IKassabuchService kassabuchService) : Controller
         {
             var model = await kassabuchService.LadeAsync(new KassabuchFilter());
             model.NeueKategorie = eingabe;
-            return View("Index", model);
+            return View("Kategorien", model);
         }
 
         try
@@ -77,7 +81,7 @@ public class HomeController(IKassabuchService kassabuchService) : Controller
         {
             TempData["Fehler"] = "Dieser Kategoriename ist bereits vorhanden.";
         }
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Kategorien));
     }
 
     [HttpPost]
@@ -89,7 +93,7 @@ public class HomeController(IKassabuchService kassabuchService) : Controller
         else
             TempData["Fehler"] = "Die Kategorie wird noch von Buchungen verwendet und kann deshalb nicht gelöscht werden.";
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Kategorien));
     }
 
     private async Task PruefeBelegnummerAsync(string belegnummer, int? ausgenommenId = null)

@@ -170,20 +170,6 @@
             }
         </section>
 
-        <section class="panel">
-            <p class="kicker">Verwaltung</p><h2>Kategorien</h2>
-            <form asp-action="KategorieAnlegen" method="post" class="category-form">
-                <input asp-for="NeueKategorie.Name" class="form-control" maxlength="@PruefungsEinstellungen.KategorieMaxZeichen" placeholder="Neue Kategorie" />
-                <input asp-for="NeueKategorie.Farbe" type="color" aria-label="Kategoriefarbe" />
-                <button class="btn-secondary" type="submit">Hinzufügen</button>
-            </form>
-            <div class="category-list">
-                @foreach (var kategorie in Model.Kategorien)
-                {
-                    <div><span class="category"><i style="background:@kategorie.Farbe"></i>@kategorie.Name</span><form asp-action="KategorieLoeschen" method="post"><input type="hidden" name="id" value="@kategorie.Id" /><button class="link-danger" type="submit">Löschen</button></form></div>
-                }
-            </div>
-        </section>
     </aside>
 </div>
 

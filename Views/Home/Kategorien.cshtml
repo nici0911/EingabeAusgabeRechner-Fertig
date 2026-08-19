@@ -1,0 +1,29 @@
+@using Kassabuch.Konfiguration
+@model KassabuchViewModel
+@{
+    ViewData["Title"] = "Kategorien";
+}
+
+<section class="dashboard-head compact-head">
+    <div><p class="kicker">Verwaltung</p><h1>Kategorien</h1></div>
+    <a asp-action="Index" class="text-link">Zurück zur Übersicht</a>
+</section>
+
+<section class="panel category-page">
+    <h2>Neue Kategorie</h2>
+    <form asp-action="KategorieAnlegen" method="post" class="category-form">
+        <input asp-for="NeueKategorie.Name" class="form-control" maxlength="@PruefungsEinstellungen.KategorieMaxZeichen" placeholder="Neue Kategorie" />
+        <input asp-for="NeueKategorie.Farbe" type="color" aria-label="Kategoriefarbe" />
+        <button class="btn-secondary" type="submit">Hinzufügen</button>
+    </form>
+    <div asp-validation-summary="All" class="validation"></div>
+
+    <div class="category-list">
+        @foreach (var kategorie in Model.Kategorien)
+        {
+            <div><span class="category"><i style="background:@kategorie.Farbe"></i>@kategorie.Name</span><form asp-action="KategorieLoeschen" method="post"><input type="hidden" name="id" value="@kategorie.Id" /><button class="link-danger" type="submit">Löschen</button></form></div>
+        }
+    </div>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

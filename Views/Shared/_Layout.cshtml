@@ -8,7 +8,12 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <header class="topbar"><nav class="page-width"><a class="brand" asp-controller="Home" asp-action="Index"><span>€</span>Kassabuch / Einnahmen-Ausgaben-Rechner</a></nav></header>
+    <header class="topbar">
+        <nav class="page-width">
+            <a class="brand" asp-controller="Home" asp-action="Index"><span>€</span>Kassabuch / Einnahmen-Ausgaben-Rechner</a>
+            <div class="top-links"><a asp-controller="Home" asp-action="Index">Übersicht</a><a asp-controller="Home" asp-action="Kategorien">Kategorien</a></div>
+        </nav>
+    </header>
     <main class="page-width page-content">
         @if (TempData["Erfolg"] is string erfolg) { <div class="notice success" role="status">@erfolg</div> }
         @if (TempData["Fehler"] is string fehler) { <div class="notice error" role="alert">@fehler</div> }
