@@ -15,8 +15,8 @@ Die lokale SQLite-Datenbank `kassabuch-schulprojekt.db` entsteht automatisch bei
 - `Konfiguration/PruefungsEinstellungen.cs`: Prüfungstag und Zeichenlimits ändern.
 - `Controllers/HomeController.cs`: verarbeitet Formulare und Navigation.
 - `Services/KassabuchService.cs`: Filter, Berechnungen, Berichte und Datenzugriff.
-- `DOKUMENTATION.md`: technische Dokumentation und Anforderungscheck.
-- `BENUTZERHANDBUCH.md`: Bedienung Schritt für Schritt.
+- `DOKUMENTATION.docx`: technische Dokumentation und Anforderungscheck als Word-Datei.
+- `BENUTZERHANDBUCH.docx`: Bedienung Schritt für Schritt als Word-Datei.
 - `docs/skizze.svg`: geplante Ansicht als händisch wirkende Skizze.
 
 ## Technische Daten
