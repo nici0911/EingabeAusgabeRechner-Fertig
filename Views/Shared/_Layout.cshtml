@@ -8,13 +8,12 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <header class="topbar"><nav class="page-width"><a class="brand" asp-controller="Home" asp-action="Index"><span>KB</span>Kassabuch</a><span class="top-note">lokal gespeichert</span></nav></header>
+    <header class="topbar"><nav class="page-width"><a class="brand" asp-controller="Home" asp-action="Index"><span>KB</span>Kassabuch</a></nav></header>
     <main class="page-width page-content">
         @if (TempData["Erfolg"] is string erfolg) { <div class="notice success" role="status">@erfolg</div> }
         @if (TempData["Fehler"] is string fehler) { <div class="notice error" role="alert">@fehler</div> }
         @RenderBody()
     </main>
-    <footer class="page-width footer">Kassabuch · Prüfungsversion 2026</footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)

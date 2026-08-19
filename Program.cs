@@ -11,7 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Das Kassabuch verwendet eine eigene Datenbank und ist vom zweiten Projekt getrennt.
-var databasePath = Path.Combine(builder.Environment.ContentRootPath, "kassabuch.db");
+// Eigene Datei für die aktuelle Projektversion, damit alte Übungsdatenbanken erhalten bleiben.
+var databasePath = Path.Combine(builder.Environment.ContentRootPath, "kassabuch-schulprojekt.db");
 builder.Services.AddDbContext<KassabuchDbContext>(options =>
     options.UseSqlite($"Data Source={databasePath}"));
 builder.Services.AddScoped<IKassabuchService, KassabuchService>();
