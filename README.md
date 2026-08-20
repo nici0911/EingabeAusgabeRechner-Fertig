@@ -24,3 +24,5 @@ Die lokale SQLite-Datenbank `kassabuch-schulprojekt.db` entsteht automatisch bei
 - C# / ASP.NET Core MVC, .NET 9
 - Entity Framework Core
 - SQLite, lokal und ohne Internet nutzbar
+- eigenes HTML/Razor und eigenes CSS
+- kein Bootstrap, kein jQuery und kein CDN
