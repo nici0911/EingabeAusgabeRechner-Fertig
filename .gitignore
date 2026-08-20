@@ -9,3 +9,5 @@ kassabuch-schulprojekt.db-shm
 kassabuch-schulprojekt.db-wal
 kassabuch.db-shm
 kassabuch.db-wal
+kassabuch-daten.json
+.dataprotection/

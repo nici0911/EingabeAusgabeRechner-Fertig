@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Kassabuch.Konfiguration;
 
 namespace Kassabuch.Models;
@@ -21,5 +22,6 @@ public class Kassenbuchung
     public decimal Ausgabe { get; set; }
 
     public int KategorieId { get; set; }
+    [JsonIgnore]
     public Kategorie Kategorie { get; set; } = null!;
 }

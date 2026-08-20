@@ -5,10 +5,11 @@ Diese Version erfüllt alle verpflichtenden Punkte der Angabe. Die optionale Meh
 ## Start in Visual Studio
 
 1. `Kassabuch.sln` in Visual Studio öffnen.
-2. Falls nötig die NuGet-Pakete wiederherstellen lassen.
-3. Mit `F5` oder dem Startknopf ausführen.
+2. Mit `F5` oder dem Startknopf ausführen.
 
-Die lokale SQLite-Datenbank `kassabuch-schulprojekt.db` entsteht automatisch beim ersten Start. Es sind verständliche Beispieldaten enthalten.
+Die lokale Datei `kassabuch-daten.json` entsteht automatisch beim ersten Start. Es sind verständliche Beispieldaten enthalten.
+
+Das Projekt benötigt keine NuGet-Pakete und keine Internetverbindung. Benötigt werden nur Visual Studio mit der ASP.NET-Webentwicklung und das .NET-10-SDK.
 
 ## Wichtige Dateien
 
@@ -21,8 +22,8 @@ Die lokale SQLite-Datenbank `kassabuch-schulprojekt.db` entsteht automatisch bei
 
 ## Technische Daten
 
-- C# / ASP.NET Core MVC, .NET 9
-- Entity Framework Core
-- SQLite, lokal und ohne Internet nutzbar
-- eigenes HTML/Razor und eigenes CSS
+- C# / ASP.NET Core MVC, .NET 10
+- lokale JSON-Datei mit `System.Text.Json`
+- keine externen Pakete oder Online-Quellen
+- einfaches HTML/Razor und eigenes CSS
 - kein Bootstrap, kein jQuery und kein CDN

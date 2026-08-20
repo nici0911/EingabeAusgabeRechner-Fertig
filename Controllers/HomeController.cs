@@ -1,7 +1,6 @@
 using Kassabuch.Models;
 using Kassabuch.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Kassabuch.Controllers;
 
@@ -72,15 +71,10 @@ public class HomeController(IKassabuchService kassabuchService) : Controller
             return View("Kategorien", model);
         }
 
-        try
-        {
-            await kassabuchService.KategorieAnlegenAsync(eingabe);
+        if (await kassabuchService.KategorieAnlegenAsync(eingabe))
             TempData["Erfolg"] = "Die Kategorie wurde angelegt und steht sofort zur Auswahl.";
-        }
-        catch (DbUpdateException)
-        {
+        else
             TempData["Fehler"] = "Dieser Kategoriename ist bereits vorhanden.";
-        }
         return RedirectToAction(nameof(Kategorien));
     }
 

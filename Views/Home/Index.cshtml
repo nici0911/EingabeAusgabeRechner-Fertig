@@ -7,9 +7,7 @@
 }
 
 <section class="dashboard-head">
-    <div>
-        <h1>Kassabuch / Einnahmen-Ausgaben-Rechner</h1>
-    </div>
+    <h1>Kassabuch / Einnahmen-Ausgaben-Rechner</h1>
     <div class="balance-box">
         <span>Aktueller Kontostand</span>
         <strong class="@(Model.Kassenstand < 0 ? "expense" : "income")">@Model.Kassenstand.ToString("C", waehrung)</strong>
@@ -26,8 +24,8 @@
 </section>
 
 <section class="panel filter-panel">
-    <div class="section-title"><div><p class="kicker">Suchen und ordnen</p><h2>Filter</h2></div><a asp-action="Index" class="text-link">Alle Filter löschen</a></div>
-    <form method="get" class="filter-grid">
+    <div class="section-title"><h2>Filter</h2><a asp-action="Index" class="text-link">Alle Filter löschen</a></div>
+    <form asp-action="Index" method="get" class="filter-grid">
         <label>Text oder Belegnummer
             <input class="form-control" name="Suche" value="@Model.Filter.Suche" placeholder="z. B. Miete" />
         </label>
@@ -67,7 +65,7 @@
 <div class="main-grid">
     <div class="content-stack">
         <section class="panel">
-            <div class="section-title"><div><p class="kicker">Übersicht</p><h2>Transaktionen</h2></div><span class="count">@Model.Zeilen.Count Einträge</span></div>
+            <div class="section-title"><h2>Transaktionen</h2><span class="count">@Model.Zeilen.Count Einträge</span></div>
             @if (Model.Zeilen.Count == 0)
             {
                 <p class="empty">Keine passenden Transaktionen gefunden.</p>
@@ -104,8 +102,8 @@
         </section>
 
         <section class="panel">
-            <div class="section-title"><div><p class="kicker">Auswertung</p><h2>Bericht</h2></div></div>
-            <form method="get" class="report-choice">
+            <div class="section-title"><h2>Bericht</h2></div>
+            <form asp-action="Index" method="get" class="report-choice">
                 <input type="hidden" name="Suche" value="@Model.Filter.Suche" />
                 <input type="hidden" name="Von" value="@(Model.Filter.Von?.ToString("yyyy-MM-dd"))" />
                 <input type="hidden" name="Bis" value="@(Model.Filter.Bis?.ToString("yyyy-MM-dd"))" />
@@ -138,7 +136,7 @@
         <section class="panel form-panel">
             @if (Model.Bearbeitung is not null && Model.BearbeitenId.HasValue)
             {
-                <p class="kicker">Ausgewählter Eintrag</p><h2>Buchung bearbeiten</h2>
+                <h2>Buchung bearbeiten</h2>
                 <form asp-action="Bearbeiten" method="post">
                     <input type="hidden" name="id" value="@Model.BearbeitenId" />
                     <div asp-validation-summary="All" class="validation"></div>
@@ -153,7 +151,7 @@
             }
             else
             {
-                <p class="kicker">Neuer Eintrag</p><h2>Buchung hinzufügen</h2>
+                <h2>Buchung hinzufügen</h2>
                 <form asp-action="Anlegen" method="post">
                     <div asp-validation-summary="All" class="validation"></div>
                     <label asp-for="NeueBuchung.Belegnummer"></label>
@@ -172,15 +170,3 @@
 
     </aside>
 </div>
-
-@section Scripts {
-    <script>
-        // In einer Buchung darf immer nur Einnahme oder Ausgabe befüllt sein.
-        document.querySelectorAll('.amount-grid').forEach(group => {
-            const income = group.querySelector('.amount-income');
-            const expense = group.querySelector('.amount-expense');
-            income?.addEventListener('input', () => { if (Number(income.value) > 0) expense.value = '0'; });
-            expense?.addEventListener('input', () => { if (Number(expense.value) > 0) income.value = '0'; });
-        });
-    </script>
-}

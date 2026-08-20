@@ -9,6 +9,6 @@ public interface IKassabuchService
     Task BuchungAnlegenAsync(KassenbuchungEingabe eingabe);
     Task<bool> BuchungBearbeitenAsync(int id, KassenbuchungEingabe eingabe);
     Task BuchungLoeschenAsync(int id);
-    Task KategorieAnlegenAsync(KategorieEingabe eingabe);
+    Task<bool> KategorieAnlegenAsync(KategorieEingabe eingabe);
     Task<bool> KategorieLoeschenAsync(int id);
 }

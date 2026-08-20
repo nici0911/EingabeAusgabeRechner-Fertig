@@ -1,4 +1,12 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+// Pro Buchung darf nur Einnahme oder Ausgabe befüllt sein.
+document.querySelectorAll(".amount-grid").forEach(gruppe => {
+    const einnahme = gruppe.querySelector(".amount-income");
+    const ausgabe = gruppe.querySelector(".amount-expense");
 
-// Write your JavaScript code.
+    einnahme?.addEventListener("input", () => {
+        if (Number(einnahme.value) > 0) ausgabe.value = "0";
+    });
+    ausgabe?.addEventListener("input", () => {
+        if (Number(ausgabe.value) > 0) einnahme.value = "0";
+    });
+});
