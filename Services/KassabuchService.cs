@@ -1,34 +1,21 @@
 using System.Globalization;
-using System.Text.Json;
 using Kassabuch.Data;
 using Kassabuch.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kassabuch.Services;
 
-/// <summary>
-/// Enthält Filter, Sortierung, Berichte und alle Schreibvorgänge des Kassabuchs.
-/// Die Daten werden ohne Zusatzpaket in einer lokalen JSON-Datei gespeichert.
-/// </summary>
-public class KassabuchService : IKassabuchService
+/// <summary>Enthält Filter, Sortierung, Berichte und den Datenbankzugriff.</summary>
+public class KassabuchService(KassabuchDbContext db) : IKassabuchService
 {
-    private readonly string _dateipfad;
-    private readonly SemaphoreSlim _dateisperre = new(1, 1);
-    private readonly JsonSerializerOptions _jsonOptionen = new() { WriteIndented = true };
-
-    public KassabuchService(IWebHostEnvironment umgebung)
-    {
-        _dateipfad = Path.Combine(umgebung.ContentRootPath, "kassabuch-daten.json");
-    }
-
     public async Task<KassabuchViewModel> LadeAsync(KassabuchFilter filter, int? bearbeitenId = null)
     {
-        var daten = await DatenLadenAsync();
-        VerbindeKategorien(daten);
-
-        var alleBuchungen = daten.Kassenbuchungen
+        var alleBuchungen = await db.Kassenbuchungen
+            .Include(b => b.Kategorie)
+            .AsNoTracking()
             .OrderBy(b => b.Datum)
             .ThenBy(b => b.Id)
-            .ToList();
+            .ToListAsync();
 
         decimal laufenderSaldo = 0;
         var saldoJeBuchung = new Dictionary<int, decimal>();
@@ -70,7 +57,7 @@ public class KassabuchService : IKassabuchService
                 Buchung = b,
                 LaufenderSaldo = saldoJeBuchung[b.Id]
             }).ToList(),
-            Kategorien = daten.Kategorien.OrderBy(k => k.Name).ToList(),
+            Kategorien = await db.Kategorien.AsNoTracking().OrderBy(k => k.Name).ToListAsync(),
             Bericht = ErstelleBericht(liste, filter.Bericht),
             Filter = filter,
             BearbeitenId = bearbeitung is null ? null : bearbeitenId,
@@ -85,149 +72,57 @@ public class KassabuchService : IKassabuchService
         };
     }
 
-    public async Task<bool> BelegnummerExistiertAsync(string belegnummer, int? ausgenommenId = null)
+    public Task<bool> BelegnummerExistiertAsync(string belegnummer, int? ausgenommenId = null)
     {
-        var daten = await DatenLadenAsync();
-        return daten.Kassenbuchungen.Any(b =>
-            b.Belegnummer.Equals(belegnummer.Trim(), StringComparison.OrdinalIgnoreCase) &&
-            (!ausgenommenId.HasValue || b.Id != ausgenommenId.Value));
+        var nummer = belegnummer.Trim().ToLower();
+        return db.Kassenbuchungen.AnyAsync(b =>
+            b.Belegnummer.ToLower() == nummer && (!ausgenommenId.HasValue || b.Id != ausgenommenId.Value));
     }
 
     public async Task BuchungAnlegenAsync(KassenbuchungEingabe eingabe)
     {
-        await _dateisperre.WaitAsync();
-        try
-        {
-            var daten = await DateiLesenOderAnlegenAsync();
-            var buchung = new Kassenbuchung
-            {
-                Id = daten.Kassenbuchungen.Count == 0 ? 1 : daten.Kassenbuchungen.Max(b => b.Id) + 1
-            };
-            Uebertrage(eingabe, buchung);
-            daten.Kassenbuchungen.Add(buchung);
-            await DateiSpeichernAsync(daten);
-        }
-        finally
-        {
-            _dateisperre.Release();
-        }
+        var buchung = new Kassenbuchung();
+        Uebertrage(eingabe, buchung);
+        db.Kassenbuchungen.Add(buchung);
+        await db.SaveChangesAsync();
     }
 
     public async Task<bool> BuchungBearbeitenAsync(int id, KassenbuchungEingabe eingabe)
     {
-        await _dateisperre.WaitAsync();
-        try
-        {
-            var daten = await DateiLesenOderAnlegenAsync();
-            var buchung = daten.Kassenbuchungen.FirstOrDefault(b => b.Id == id);
-            if (buchung is null) return false;
-            Uebertrage(eingabe, buchung);
-            await DateiSpeichernAsync(daten);
-            return true;
-        }
-        finally
-        {
-            _dateisperre.Release();
-        }
+        var buchung = await db.Kassenbuchungen.FindAsync(id);
+        if (buchung is null) return false;
+        Uebertrage(eingabe, buchung);
+        await db.SaveChangesAsync();
+        return true;
     }
 
     public async Task BuchungLoeschenAsync(int id)
     {
-        await _dateisperre.WaitAsync();
-        try
-        {
-            var daten = await DateiLesenOderAnlegenAsync();
-            daten.Kassenbuchungen.RemoveAll(b => b.Id == id);
-            await DateiSpeichernAsync(daten);
-        }
-        finally
-        {
-            _dateisperre.Release();
-        }
+        var buchung = await db.Kassenbuchungen.FindAsync(id);
+        if (buchung is null) return;
+        db.Kassenbuchungen.Remove(buchung);
+        await db.SaveChangesAsync();
     }
 
     public async Task<bool> KategorieAnlegenAsync(KategorieEingabe eingabe)
     {
-        await _dateisperre.WaitAsync();
-        try
-        {
-            var daten = await DateiLesenOderAnlegenAsync();
-            var name = eingabe.Name.Trim();
-            if (daten.Kategorien.Any(k => k.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
-                return false;
+        var name = eingabe.Name.Trim();
+        var vergleich = name.ToLower();
+        if (await db.Kategorien.AnyAsync(k => k.Name.ToLower() == vergleich)) return false;
 
-            daten.Kategorien.Add(new Kategorie
-            {
-                Id = daten.Kategorien.Count == 0 ? 1 : daten.Kategorien.Max(k => k.Id) + 1,
-                Name = name,
-                Farbe = eingabe.Farbe
-            });
-            await DateiSpeichernAsync(daten);
-            return true;
-        }
-        finally
-        {
-            _dateisperre.Release();
-        }
+        db.Kategorien.Add(new Kategorie { Name = name, Farbe = eingabe.Farbe });
+        await db.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> KategorieLoeschenAsync(int id)
     {
-        await _dateisperre.WaitAsync();
-        try
-        {
-            var daten = await DateiLesenOderAnlegenAsync();
-            if (daten.Kassenbuchungen.Any(b => b.KategorieId == id)) return false;
-            daten.Kategorien.RemoveAll(k => k.Id == id);
-            await DateiSpeichernAsync(daten);
-            return true;
-        }
-        finally
-        {
-            _dateisperre.Release();
-        }
-    }
-
-    private async Task<KassabuchDatei> DatenLadenAsync()
-    {
-        await _dateisperre.WaitAsync();
-        try
-        {
-            return await DateiLesenOderAnlegenAsync();
-        }
-        finally
-        {
-            _dateisperre.Release();
-        }
-    }
-
-    private async Task<KassabuchDatei> DateiLesenOderAnlegenAsync()
-    {
-        if (!File.Exists(_dateipfad))
-        {
-            var beispieldaten = KassabuchSeeder.ErstelleBeispieldaten();
-            await DateiSpeichernAsync(beispieldaten);
-            return beispieldaten;
-        }
-
-        await using var stream = File.OpenRead(_dateipfad);
-        return await JsonSerializer.DeserializeAsync<KassabuchDatei>(stream, _jsonOptionen)
-            ?? new KassabuchDatei();
-    }
-
-    private async Task DateiSpeichernAsync(KassabuchDatei daten)
-    {
-        await using var stream = File.Create(_dateipfad);
-        await JsonSerializer.SerializeAsync(stream, daten, _jsonOptionen);
-    }
-
-    private static void VerbindeKategorien(KassabuchDatei daten)
-    {
-        foreach (var buchung in daten.Kassenbuchungen)
-        {
-            buchung.Kategorie = daten.Kategorien.FirstOrDefault(k => k.Id == buchung.KategorieId)
-                ?? new Kategorie { Id = buchung.KategorieId, Name = "Unbekannt", Farbe = "#777777" };
-        }
+        if (await db.Kassenbuchungen.AnyAsync(b => b.KategorieId == id)) return false;
+        var kategorie = await db.Kategorien.FindAsync(id);
+        if (kategorie is null) return true;
+        db.Kategorien.Remove(kategorie);
+        await db.SaveChangesAsync();
+        return true;
     }
 
     private static decimal Betrag(Kassenbuchung b) => b.Einnahme > 0 ? b.Einnahme : b.Ausgabe;
