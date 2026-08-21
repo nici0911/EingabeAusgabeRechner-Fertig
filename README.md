@@ -7,13 +7,13 @@ Diese Version erfüllt die verpflichtenden Punkte der Angabe.
 1. `Kassabuch.sln` in Visual Studio öffnen.
 2. Mit `F5` oder dem Startknopf ausführen.
 
-Die lokale SQLite-Datenbank `kassabuch-schulprojekt.db` entsteht automatisch beim ersten Start. Es sind verständliche Beispieldaten enthalten.
+Die lokale SQLite-Datenbank `kassabuch.db` entsteht automatisch beim ersten Start. Es sind verständliche Beispieldaten enthalten.
 
 Die benötigten NuGet-Pakete liegen im Ordner `offline-packages`. Deshalb kann Visual Studio das Projekt auch ohne Internet wiederherstellen. Benötigt werden Visual Studio mit der ASP.NET-Webentwicklung und das .NET-10-SDK.
 
 ## Wichtige Dateien
 
-- `Konfiguration/PruefungsEinstellungen.cs`: Prüfungstag und Zeichenlimits ändern.
+- `Konfiguration/ProjektEinstellungen.cs`: Datumswert und Zeichenlimits ändern.
 - `Controllers/HomeController.cs`: verarbeitet Formulare und Navigation.
 - `Services/KassabuchService.cs`: Filter, Berechnungen, Berichte und Datenzugriff.
 - `DOKUMENTATION.docx`: technische Dokumentation als Word-Datei.

@@ -6,7 +6,7 @@ namespace Kassabuch.Models;
 public class KategorieEingabe
 {
     [Required(ErrorMessage = "Bitte einen Kategorienamen eingeben.")]
-    [StringLength(PruefungsEinstellungen.KategorieMaxZeichen, ErrorMessage = "Der Name darf höchstens 30 Zeichen lang sein.")]
+    [StringLength(ProjektEinstellungen.KategorieMaxZeichen, ErrorMessage = "Der Name darf höchstens 30 Zeichen lang sein.")]
     public string Name { get; set; } = string.Empty;
 
     [Required]

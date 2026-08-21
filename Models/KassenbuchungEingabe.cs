@@ -6,16 +6,16 @@ namespace Kassabuch.Models;
 public class KassenbuchungEingabe : IValidatableObject
 {
     [Required(ErrorMessage = "Bitte eine Belegnummer eingeben.")]
-    [StringLength(PruefungsEinstellungen.BelegnummerMaxZeichen, ErrorMessage = "Die Belegnummer darf höchstens 20 Zeichen lang sein.")]
+    [StringLength(ProjektEinstellungen.BelegnummerMaxZeichen, ErrorMessage = "Die Belegnummer darf höchstens 20 Zeichen lang sein.")]
     [Display(Name = "Belegnummer")]
     public string Belegnummer { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Bitte ein Datum auswählen.")]
     [DataType(DataType.Date)]
-    public DateTime Datum { get; set; } = PruefungsEinstellungen.StandardDatum;
+    public DateTime Datum { get; set; } = ProjektEinstellungen.StandardDatum;
 
     [Required(ErrorMessage = "Bitte einen Buchungstext eingeben.")]
-    [StringLength(PruefungsEinstellungen.BeschreibungMaxZeichen, ErrorMessage = "Der Buchungstext darf höchstens 80 Zeichen lang sein.")]
+    [StringLength(ProjektEinstellungen.BeschreibungMaxZeichen, ErrorMessage = "Der Buchungstext darf höchstens 80 Zeichen lang sein.")]
     [Display(Name = "Buchungstext")]
     public string Buchungstext { get; set; } = string.Empty;
 
@@ -39,10 +39,10 @@ public class KassenbuchungEingabe : IValidatableObject
                 [nameof(Einnahme), nameof(Ausgabe)]);
         }
 
-        if (Datum.Date > PruefungsEinstellungen.MaxDatum)
+        if (Datum.Date > ProjektEinstellungen.MaxDatum)
         {
             yield return new ValidationResult(
-                $"Das Datum darf höchstens der {PruefungsEinstellungen.MaxDatum:dd.MM.yyyy} sein.",
+                $"Das Datum darf höchstens der {ProjektEinstellungen.MaxDatum:dd.MM.yyyy} sein.",
                 [nameof(Datum)]);
         }
     }

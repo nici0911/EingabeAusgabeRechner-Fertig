@@ -1,9 +1,9 @@
 namespace Kassabuch.Konfiguration;
 
 /// <summary>
-/// Zentrale Stelle für Werte, die vor der Prüfung leicht angepasst werden können.
+/// Zentrale Stelle für Datumswerte und Zeichenlimits.
 /// </summary>
-public static class PruefungsEinstellungen
+public static class ProjektEinstellungen
 {
     public static readonly DateTime MaxDatum = new(2026, 8, 26);
     public static DateTime StandardDatum => DateTime.Today <= MaxDatum ? DateTime.Today : MaxDatum;

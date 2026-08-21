@@ -16,7 +16,7 @@ builder.Services.AddDataProtection().PersistKeysToFileSystem(
     new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, ".dataprotection")));
 
 // SQLite speichert alle Daten lokal in einer Datei im Projektordner.
-var datenbankPfad = Path.Combine(builder.Environment.ContentRootPath, "kassabuch-schulprojekt.db");
+var datenbankPfad = Path.Combine(builder.Environment.ContentRootPath, "kassabuch.db");
 builder.Services.AddDbContext<KassabuchDbContext>(optionen =>
     optionen.UseSqlite($"Data Source={datenbankPfad}"));
 builder.Services.AddScoped<IKassabuchService, KassabuchService>();

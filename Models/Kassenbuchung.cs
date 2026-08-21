@@ -8,13 +8,13 @@ public class Kassenbuchung
     public int Id { get; set; }
 
     [Required]
-    [StringLength(PruefungsEinstellungen.BelegnummerMaxZeichen)]
+    [StringLength(ProjektEinstellungen.BelegnummerMaxZeichen)]
     public string Belegnummer { get; set; } = string.Empty;
 
     public DateTime Datum { get; set; }
 
     [Required]
-    [StringLength(PruefungsEinstellungen.BeschreibungMaxZeichen)]
+    [StringLength(ProjektEinstellungen.BeschreibungMaxZeichen)]
     public string Buchungstext { get; set; } = string.Empty;
 
     public decimal Einnahme { get; set; }

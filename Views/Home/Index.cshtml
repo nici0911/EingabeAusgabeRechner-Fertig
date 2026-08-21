@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Kassabuch / Einnahmen-Ausgaben-Rechner";
     var waehrung = CultureInfo.GetCultureInfo("de-AT");
-    var maxDatum = PruefungsEinstellungen.MaxDatum.ToString("yyyy-MM-dd");
+    var maxDatum = ProjektEinstellungen.MaxDatum.ToString("yyyy-MM-dd");
 }
 
 <section class="dashboard-head">
@@ -140,9 +140,9 @@
                 <form asp-action="Bearbeiten" method="post">
                     <input type="hidden" name="id" value="@Model.BearbeitenId" />
                     <div asp-validation-summary="All" class="validation"></div>
-                    <label>Belegnummer<input class="form-control" name="Bearbeitung.Belegnummer" maxlength="@PruefungsEinstellungen.BelegnummerMaxZeichen" value="@Model.Bearbeitung.Belegnummer" /></label>
+                    <label>Belegnummer<input class="form-control" name="Bearbeitung.Belegnummer" maxlength="@ProjektEinstellungen.BelegnummerMaxZeichen" value="@Model.Bearbeitung.Belegnummer" /></label>
                     <label>Datum<input class="form-control" type="date" name="Bearbeitung.Datum" max="@maxDatum" value="@Model.Bearbeitung.Datum.ToString("yyyy-MM-dd")" /></label>
-                    <label>Beschreibung<input class="form-control" name="Bearbeitung.Buchungstext" maxlength="@PruefungsEinstellungen.BeschreibungMaxZeichen" value="@Model.Bearbeitung.Buchungstext" /></label>
+                    <label>Beschreibung<input class="form-control" name="Bearbeitung.Buchungstext" maxlength="@ProjektEinstellungen.BeschreibungMaxZeichen" value="@Model.Bearbeitung.Buchungstext" /></label>
                     <label>Kategorie<select class="form-select" name="Bearbeitung.KategorieId">@foreach (var kategorie in Model.Kategorien) { <option value="@kategorie.Id" selected="@(Model.Bearbeitung.KategorieId == kategorie.Id)">@kategorie.Name</option> }</select></label>
                     <div class="amount-grid"><label>Einnahme<input class="form-control amount-income" type="number" min="0" step="0.01" name="Bearbeitung.Einnahme" value="@Model.Bearbeitung.Einnahme" /></label><label>Ausgabe<input class="form-control amount-expense" type="number" min="0" step="0.01" name="Bearbeitung.Ausgabe" value="@Model.Bearbeitung.Ausgabe" /></label></div>
                     <button class="btn-main full" type="submit">Änderungen speichern</button>
@@ -155,11 +155,11 @@
                 <form asp-action="Anlegen" method="post">
                     <div asp-validation-summary="All" class="validation"></div>
                     <label asp-for="NeueBuchung.Belegnummer"></label>
-                    <input asp-for="NeueBuchung.Belegnummer" class="form-control" maxlength="@PruefungsEinstellungen.BelegnummerMaxZeichen" placeholder="z. B. B-104" />
+                    <input asp-for="NeueBuchung.Belegnummer" class="form-control" maxlength="@ProjektEinstellungen.BelegnummerMaxZeichen" placeholder="z. B. B-104" />
                     <label asp-for="NeueBuchung.Datum"></label>
                     <input asp-for="NeueBuchung.Datum" class="form-control" type="date" max="@maxDatum" />
                     <label asp-for="NeueBuchung.Buchungstext"></label>
-                    <input asp-for="NeueBuchung.Buchungstext" class="form-control" maxlength="@PruefungsEinstellungen.BeschreibungMaxZeichen" placeholder="Kurze Beschreibung" />
+                    <input asp-for="NeueBuchung.Buchungstext" class="form-control" maxlength="@ProjektEinstellungen.BeschreibungMaxZeichen" placeholder="Kurze Beschreibung" />
                     <label asp-for="NeueBuchung.KategorieId"></label>
                     <select asp-for="NeueBuchung.KategorieId" class="form-select"><option value="0">Bitte wählen</option>@foreach (var kategorie in Model.Kategorien) { <option value="@kategorie.Id">@kategorie.Name</option> }</select>
                     <div class="amount-grid"><label asp-for="NeueBuchung.Einnahme"></label><input asp-for="NeueBuchung.Einnahme" class="form-control amount-income" type="number" min="0" step="0.01" /><label asp-for="NeueBuchung.Ausgabe"></label><input asp-for="NeueBuchung.Ausgabe" class="form-control amount-expense" type="number" min="0" step="0.01" /></div>

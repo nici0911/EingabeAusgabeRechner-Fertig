@@ -12,7 +12,7 @@
 <section class="panel category-page">
     <h2>Neue Kategorie</h2>
     <form asp-action="KategorieAnlegen" method="post" class="category-form">
-        <input asp-for="NeueKategorie.Name" class="form-control" maxlength="@PruefungsEinstellungen.KategorieMaxZeichen" placeholder="Neue Kategorie" />
+        <input asp-for="NeueKategorie.Name" class="form-control" maxlength="@ProjektEinstellungen.KategorieMaxZeichen" placeholder="Neue Kategorie" />
         <input asp-for="NeueKategorie.Farbe" type="color" aria-label="Kategoriefarbe" />
         <button class="btn-secondary" type="submit">Hinzufügen</button>
     </form>

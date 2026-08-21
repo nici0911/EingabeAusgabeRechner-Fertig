@@ -4,9 +4,9 @@ obj/
 *.user
 *.suo
 kassabuch.db
-kassabuch-schulprojekt.db
-kassabuch-schulprojekt.db-shm
-kassabuch-schulprojekt.db-wal
+kassabuch.db
+kassabuch.db-shm
+kassabuch.db-wal
 kassabuch.db-shm
 kassabuch.db-wal
 kassabuch-daten.json

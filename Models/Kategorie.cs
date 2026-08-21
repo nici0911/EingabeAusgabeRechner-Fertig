@@ -8,7 +8,7 @@ public class Kategorie
     public int Id { get; set; }
 
     [Required]
-    [StringLength(PruefungsEinstellungen.KategorieMaxZeichen)]
+    [StringLength(ProjektEinstellungen.KategorieMaxZeichen)]
     public string Name { get; set; } = string.Empty;
 
     [Required]
