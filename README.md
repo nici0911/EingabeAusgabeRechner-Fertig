@@ -18,7 +18,6 @@ Die benötigten NuGet-Pakete liegen im Ordner `offline-packages`. Deshalb kann V
 - `Services/KassabuchService.cs`: Filter, Berechnungen, Berichte und Datenzugriff.
 - `DOKUMENTATION.docx`: technische Dokumentation als Word-Datei.
 - `BENUTZERHANDBUCH.docx`: Bedienung Schritt für Schritt als Word-Datei.
-- `docs/skizze.svg`: geplante Ansicht als händisch wirkende Skizze.
 
 ## Technische Daten
 
