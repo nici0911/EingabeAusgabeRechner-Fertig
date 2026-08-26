@@ -1,9 +1,9 @@
-namespace Kassabuch.Models;
+namespace EingabeAusgabeRechner.Models;
 
 public class Berichtszeile
 {
     public string Zeitraum { get; set; } = string.Empty;
     public decimal Einnahmen { get; set; }
     public decimal Ausgaben { get; set; }
-    public decimal Saldo => Einnahmen - Ausgaben;
+    public decimal Differenz => Einnahmen - Ausgaben;
 }

@@ -1,5 +1,5 @@
-using Kassabuch.Data;
-using Kassabuch.Services;
+using EingabeAusgabeRechner.Data;
+using EingabeAusgabeRechner.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -16,10 +16,10 @@ builder.Services.AddDataProtection().PersistKeysToFileSystem(
     new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, ".dataprotection")));
 
 // SQLite speichert alle Daten lokal in einer Datei im Projektordner.
-var datenbankPfad = Path.Combine(builder.Environment.ContentRootPath, "kassabuch.db");
-builder.Services.AddDbContext<KassabuchDbContext>(optionen =>
+var datenbankPfad = Path.Combine(builder.Environment.ContentRootPath, "eingabe-ausgabe-rechner.db");
+builder.Services.AddDbContext<RechnerDbContext>(optionen =>
     optionen.UseSqlite($"Data Source={datenbankPfad}"));
-builder.Services.AddScoped<IKassabuchService, KassabuchService>();
+builder.Services.AddScoped<IRechnerService, RechnerService>();
 
 var app = builder.Build();
 
@@ -29,18 +29,17 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+app.UseStaticFiles();
 app.UseAuthorization();
-app.MapStaticAssets();
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // Beim ersten Start werden Datenbank und verständliche Beispieldaten angelegt.
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<KassabuchDbContext>();
-    await KassabuchSeeder.InitialisiereAsync(db);
+    var db = scope.ServiceProvider.GetRequiredService<RechnerDbContext>();
+    await RechnerSeeder.InitialisiereAsync(db);
 }
 
 app.Run();

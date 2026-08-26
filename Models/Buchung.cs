@@ -1,15 +1,11 @@
 using System.ComponentModel.DataAnnotations;
-using Kassabuch.Konfiguration;
+using EingabeAusgabeRechner.Konfiguration;
 
-namespace Kassabuch.Models;
+namespace EingabeAusgabeRechner.Models;
 
-public class Kassenbuchung
+public class Buchung
 {
     public int Id { get; set; }
-
-    [Required]
-    [StringLength(ProjektEinstellungen.BelegnummerMaxZeichen)]
-    public string Belegnummer { get; set; } = string.Empty;
 
     public DateTime Datum { get; set; }
 

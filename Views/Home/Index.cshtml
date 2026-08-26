@@ -1,36 +1,31 @@
-@using Kassabuch.Konfiguration
-@model KassabuchViewModel
+@using EingabeAusgabeRechner.Konfiguration
+@model UebersichtViewModel
 @{
-    ViewData["Title"] = "Kassabuch / Einnahmen-Ausgaben-Rechner";
+    ViewData["Title"] = "EingabeAusgabeRechner";
     var waehrung = CultureInfo.GetCultureInfo("de-AT");
     var maxDatum = ProjektEinstellungen.MaxDatum.ToString("yyyy-MM-dd");
 }
 
 <section class="page-head">
-    <h1>Kassabuch / Einnahmen-Ausgaben-Rechner</h1>
-    <p class="balance">
-        <span>Aktueller Kontostand</span>
-        <strong class="@(Model.Kassenstand < 0 ? "expense" : "income")">@Model.Kassenstand.ToString("C", waehrung)</strong>
-    </p>
+    <div>
+        <h1>EingabeAusgabeRechner</h1>
+        <p>Einnahmen und Ausgaben übersichtlich erfassen und auswerten.</p>
+    </div>
+    <a class="button-link" asp-action="Statistik">Statistik öffnen</a>
 </section>
 
-<section class="summary" aria-label="Summen der aktuellen Auswahl">
+<section class="summary summary-three" aria-label="Summen der aktuellen Auswahl">
     <p><span>Einnahmen</span><strong class="income">@Model.SummeEinnahmen.ToString("C", waehrung)</strong></p>
     <p><span>Ausgaben</span><strong class="expense">@Model.SummeAusgaben.ToString("C", waehrung)</strong></p>
+    <p><span>Differenz</span><strong class="@(Model.Differenz < 0 ? "expense" : "income")">@Model.Differenz.ToString("C", waehrung)</strong></p>
 </section>
 
 <section class="panel">
     <div class="row"><h2>Filter</h2><a asp-action="Index">Alle Filter löschen</a></div>
     <form asp-action="Index" method="get" class="filter-grid">
-        <label>Text oder Belegnummer
-            <input name="Suche" value="@Model.Filter.Suche" placeholder="z. B. Miete" />
-        </label>
-        <label>Von
-            <input type="date" name="Von" value="@(Model.Filter.Von?.ToString("yyyy-MM-dd"))" max="@maxDatum" />
-        </label>
-        <label>Bis
-            <input type="date" name="Bis" value="@(Model.Filter.Bis?.ToString("yyyy-MM-dd"))" max="@maxDatum" />
-        </label>
+        <label>Beschreibung<input name="Suche" value="@Model.Filter.Suche" placeholder="z. B. Miete" /></label>
+        <label>Von<input type="date" name="Von" value="@(Model.Filter.Von?.ToString("yyyy-MM-dd"))" max="@maxDatum" /></label>
+        <label>Bis<input type="date" name="Bis" value="@(Model.Filter.Bis?.ToString("yyyy-MM-dd"))" max="@maxDatum" /></label>
         <label>Kategorie
             <select name="KategorieId">
                 <option value="">Alle</option>
@@ -40,11 +35,14 @@
                 }
             </select>
         </label>
-        <label>Betrag von
-            <input type="number" min="0" step="0.01" name="Mindestbetrag" value="@Model.Filter.Mindestbetrag" />
-        </label>
-        <label>Betrag bis
-            <input type="number" min="0" step="0.01" name="Hoechstbetrag" value="@Model.Filter.Hoechstbetrag" />
+        <label>Betrag von<input type="number" min="0" step="0.01" name="Mindestbetrag" value="@Model.Filter.Mindestbetrag" /></label>
+        <label>Betrag bis<input type="number" min="0" step="0.01" name="Hoechstbetrag" value="@Model.Filter.Hoechstbetrag" /></label>
+        <label>Differenz
+            <select name="DifferenzArt">
+                <option value="alle" selected="@(Model.Filter.DifferenzArt == "alle")">Alle Buchungen</option>
+                <option value="positiv" selected="@(Model.Filter.DifferenzArt == "positiv")">Positiv (Einnahme)</option>
+                <option value="negativ" selected="@(Model.Filter.DifferenzArt == "negativ")">Negativ (Ausgabe)</option>
+            </select>
         </label>
         <label>Sortierung
             <select name="Sortierung">
@@ -61,31 +59,29 @@
 <div class="columns">
     <div class="stack">
         <section class="panel">
-            <div class="row"><h2>Transaktionen</h2><span class="count">@Model.Zeilen.Count Einträge</span></div>
-            @if (Model.Zeilen.Count == 0)
+            <div class="row"><h2>Buchungen</h2><span class="count">@Model.Buchungen.Count Einträge</span></div>
+            @if (Model.Buchungen.Count == 0)
             {
-                <p class="empty">Keine passenden Transaktionen gefunden.</p>
+                <p class="empty">Keine passenden Buchungen gefunden.</p>
             }
             else
             {
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Datum</th><th>Beleg</th><th>Beschreibung</th><th>Kategorie</th><th class="number">Einnahme</th><th class="number">Ausgabe</th><th class="number">Saldo</th><th>Aktion</th></tr></thead>
+                        <thead><tr><th>Datum</th><th>Beschreibung</th><th>Kategorie</th><th class="number">Einnahme</th><th class="number">Ausgabe</th><th>Aktion</th></tr></thead>
                         <tbody>
-                        @foreach (var zeile in Model.Zeilen)
+                        @foreach (var buchung in Model.Buchungen)
                         {
                             <tr>
-                                <td>@zeile.Buchung.Datum.ToString("dd.MM.yyyy")</td>
-                                <td>@zeile.Buchung.Belegnummer</td>
-                                <td>@zeile.Buchung.Buchungstext</td>
-                                <td><span><i class="dot" style="background:@zeile.Buchung.Kategorie.Farbe"></i>@zeile.Buchung.Kategorie.Name</span></td>
-                                <td class="number income">@(zeile.Buchung.Einnahme > 0 ? zeile.Buchung.Einnahme.ToString("C", waehrung) : "–")</td>
-                                <td class="number expense">@(zeile.Buchung.Ausgabe > 0 ? zeile.Buchung.Ausgabe.ToString("C", waehrung) : "–")</td>
-                                <td class="number">@zeile.LaufenderSaldo.ToString("C", waehrung)</td>
+                                <td>@buchung.Datum.ToString("dd.MM.yyyy")</td>
+                                <td>@buchung.Buchungstext</td>
+                                <td><span><i class="dot" style="background:@buchung.Kategorie.Farbe"></i>@buchung.Kategorie.Name</span></td>
+                                <td class="number income">@(buchung.Einnahme > 0 ? buchung.Einnahme.ToString("C", waehrung) : "–")</td>
+                                <td class="number expense">@(buchung.Ausgabe > 0 ? buchung.Ausgabe.ToString("C", waehrung) : "–")</td>
                                 <td class="actions">
-                                    <a asp-action="Index" asp-route-bearbeiten="@zeile.Buchung.Id" asp-fragment="buchungsformular">Bearbeiten</a>
+                                    <a asp-action="Index" asp-route-bearbeiten="@buchung.Id" asp-fragment="buchungsformular">Bearbeiten</a>
                                     <form asp-action="Loeschen" method="post" onsubmit="return confirm('Buchung wirklich löschen?');">
-                                        <input type="hidden" name="id" value="@zeile.Buchung.Id" />
+                                        <input type="hidden" name="id" value="@buchung.Id" />
                                         <button class="danger" type="submit">Löschen</button>
                                     </form>
                                 </td>
@@ -106,6 +102,7 @@
                 <input type="hidden" name="KategorieId" value="@Model.Filter.KategorieId" />
                 <input type="hidden" name="Mindestbetrag" value="@Model.Filter.Mindestbetrag" />
                 <input type="hidden" name="Hoechstbetrag" value="@Model.Filter.Hoechstbetrag" />
+                <input type="hidden" name="DifferenzArt" value="@Model.Filter.DifferenzArt" />
                 <input type="hidden" name="Sortierung" value="@Model.Filter.Sortierung" />
                 <select name="Bericht">
                     <option value="tag" selected="@(Model.Filter.Bericht == "tag")">Täglich</option>
@@ -116,11 +113,11 @@
             </form>
             <div class="table-wrap">
                 <table>
-                    <thead><tr><th>Zeitraum</th><th class="number">Einnahmen</th><th class="number">Ausgaben</th><th class="number">Ergebnis</th></tr></thead>
+                    <thead><tr><th>Zeitraum</th><th class="number">Einnahmen</th><th class="number">Ausgaben</th><th class="number">Differenz</th></tr></thead>
                     <tbody>
                     @foreach (var zeile in Model.Bericht)
                     {
-                        <tr><td>@zeile.Zeitraum</td><td class="number income">@zeile.Einnahmen.ToString("C", waehrung)</td><td class="number expense">@zeile.Ausgaben.ToString("C", waehrung)</td><td class="number">@zeile.Saldo.ToString("C", waehrung)</td></tr>
+                        <tr><td>@zeile.Zeitraum</td><td class="number income">@zeile.Einnahmen.ToString("C", waehrung)</td><td class="number expense">@zeile.Ausgaben.ToString("C", waehrung)</td><td class="number @(zeile.Differenz < 0 ? "expense" : "income")">@zeile.Differenz.ToString("C", waehrung)</td></tr>
                     }
                     </tbody>
                 </table>
@@ -136,7 +133,6 @@
                 <form asp-action="Bearbeiten" method="post">
                     <input type="hidden" name="id" value="@Model.BearbeitenId" />
                     <div asp-validation-summary="All" class="validation"></div>
-                    <label>Belegnummer<input name="Bearbeitung.Belegnummer" maxlength="@ProjektEinstellungen.BelegnummerMaxZeichen" value="@Model.Bearbeitung.Belegnummer" /></label>
                     <label>Datum<input type="date" name="Bearbeitung.Datum" max="@maxDatum" value="@Model.Bearbeitung.Datum.ToString("yyyy-MM-dd")" /></label>
                     <label>Beschreibung<input name="Bearbeitung.Buchungstext" maxlength="@ProjektEinstellungen.BeschreibungMaxZeichen" value="@Model.Bearbeitung.Buchungstext" /></label>
                     <label>Kategorie<select name="Bearbeitung.KategorieId">@foreach (var kategorie in Model.Kategorien) { <option value="@kategorie.Id" selected="@(Model.Bearbeitung.KategorieId == kategorie.Id)">@kategorie.Name</option> }</select></label>
@@ -150,8 +146,6 @@
                 <h2>Buchung hinzufügen</h2>
                 <form asp-action="Anlegen" method="post">
                     <div asp-validation-summary="All" class="validation"></div>
-                    <label asp-for="NeueBuchung.Belegnummer"></label>
-                    <input asp-for="NeueBuchung.Belegnummer" maxlength="@ProjektEinstellungen.BelegnummerMaxZeichen" placeholder="z. B. B-104" />
                     <label asp-for="NeueBuchung.Datum"></label>
                     <input asp-for="NeueBuchung.Datum" type="date" max="@maxDatum" />
                     <label asp-for="NeueBuchung.Buchungstext"></label>
@@ -163,6 +157,5 @@
                 </form>
             }
         </section>
-
     </aside>
 </div>

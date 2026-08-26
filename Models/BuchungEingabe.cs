@@ -1,15 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using Kassabuch.Konfiguration;
+using EingabeAusgabeRechner.Konfiguration;
 
-namespace Kassabuch.Models;
+namespace EingabeAusgabeRechner.Models;
 
-public class KassenbuchungEingabe : IValidatableObject
+public class BuchungEingabe : IValidatableObject
 {
-    [Required(ErrorMessage = "Bitte eine Belegnummer eingeben.")]
-    [StringLength(ProjektEinstellungen.BelegnummerMaxZeichen, ErrorMessage = "Die Belegnummer darf höchstens 20 Zeichen lang sein.")]
-    [Display(Name = "Belegnummer")]
-    public string Belegnummer { get; set; } = string.Empty;
-
     [Required(ErrorMessage = "Bitte ein Datum auswählen.")]
     [DataType(DataType.Date)]
     public DateTime Datum { get; set; } = ProjektEinstellungen.StandardDatum;

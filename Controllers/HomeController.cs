@@ -1,52 +1,54 @@
-using Kassabuch.Models;
-using Kassabuch.Services;
+using EingabeAusgabeRechner.Models;
+using EingabeAusgabeRechner.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Kassabuch.Controllers;
+namespace EingabeAusgabeRechner.Controllers;
 
 /// <summary>
 /// Nimmt Eingaben aus der Oberfläche entgegen und übergibt sie an den Service.
 /// </summary>
-public class HomeController(IKassabuchService kassabuchService) : Controller
+public class HomeController(IRechnerService rechnerService) : Controller
 {
     [HttpGet]
-    public async Task<IActionResult> Index([FromQuery] KassabuchFilter filter, int? bearbeiten) =>
-        View(await kassabuchService.LadeAsync(filter, bearbeiten));
+    public async Task<IActionResult> Index([FromQuery] BuchungsFilter filter, int? bearbeiten) =>
+        View(await rechnerService.LadeAsync(filter, bearbeiten));
 
     [HttpGet]
     public async Task<IActionResult> Kategorien() =>
-        View(await kassabuchService.LadeAsync(new KassabuchFilter()));
+        View(await rechnerService.LadeAsync(new BuchungsFilter()));
+
+    [HttpGet]
+    public async Task<IActionResult> Statistik([FromQuery] StatistikFilter filter) =>
+        View(await rechnerService.LadeStatistikAsync(filter));
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Anlegen([Bind(Prefix = "NeueBuchung")] KassenbuchungEingabe eingabe)
+    public async Task<IActionResult> Anlegen([Bind(Prefix = "NeueBuchung")] BuchungEingabe eingabe)
     {
-        await PruefeBelegnummerAsync(eingabe.Belegnummer);
         if (!ModelState.IsValid)
         {
-            var model = await kassabuchService.LadeAsync(new KassabuchFilter());
+            var model = await rechnerService.LadeAsync(new BuchungsFilter());
             model.NeueBuchung = eingabe;
             return View("Index", model);
         }
 
-        await kassabuchService.BuchungAnlegenAsync(eingabe);
+        await rechnerService.BuchungAnlegenAsync(eingabe);
         TempData["Erfolg"] = "Die Buchung wurde gespeichert.";
         return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Bearbeiten(int id, [Bind(Prefix = "Bearbeitung")] KassenbuchungEingabe eingabe)
+    public async Task<IActionResult> Bearbeiten(int id, [Bind(Prefix = "Bearbeitung")] BuchungEingabe eingabe)
     {
-        await PruefeBelegnummerAsync(eingabe.Belegnummer, id);
         if (!ModelState.IsValid)
         {
-            var model = await kassabuchService.LadeAsync(new KassabuchFilter(), id);
+            var model = await rechnerService.LadeAsync(new BuchungsFilter(), id);
             model.Bearbeitung = eingabe;
             return View("Index", model);
         }
 
-        if (!await kassabuchService.BuchungBearbeitenAsync(id, eingabe)) return NotFound();
+        if (!await rechnerService.BuchungBearbeitenAsync(id, eingabe)) return NotFound();
         TempData["Erfolg"] = "Die Buchung wurde geändert.";
         return RedirectToAction(nameof(Index));
     }
@@ -55,7 +57,7 @@ public class HomeController(IKassabuchService kassabuchService) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Loeschen(int id)
     {
-        await kassabuchService.BuchungLoeschenAsync(id);
+        await rechnerService.BuchungLoeschenAsync(id);
         TempData["Erfolg"] = "Die Buchung wurde gelöscht.";
         return RedirectToAction(nameof(Index));
     }
@@ -66,12 +68,12 @@ public class HomeController(IKassabuchService kassabuchService) : Controller
     {
         if (!ModelState.IsValid)
         {
-            var model = await kassabuchService.LadeAsync(new KassabuchFilter());
+            var model = await rechnerService.LadeAsync(new BuchungsFilter());
             model.NeueKategorie = eingabe;
             return View("Kategorien", model);
         }
 
-        if (await kassabuchService.KategorieAnlegenAsync(eingabe))
+        if (await rechnerService.KategorieAnlegenAsync(eingabe))
             TempData["Erfolg"] = "Die Kategorie wurde angelegt und steht sofort zur Auswahl.";
         else
             TempData["Fehler"] = "Dieser Kategoriename ist bereits vorhanden.";
@@ -82,20 +84,11 @@ public class HomeController(IKassabuchService kassabuchService) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> KategorieLoeschen(int id)
     {
-        if (await kassabuchService.KategorieLoeschenAsync(id))
+        if (await rechnerService.KategorieLoeschenAsync(id))
             TempData["Erfolg"] = "Die Kategorie wurde gelöscht.";
         else
             TempData["Fehler"] = "Die Kategorie wird noch von Buchungen verwendet und kann deshalb nicht gelöscht werden.";
 
         return RedirectToAction(nameof(Kategorien));
-    }
-
-    private async Task PruefeBelegnummerAsync(string belegnummer, int? ausgenommenId = null)
-    {
-        if (!string.IsNullOrWhiteSpace(belegnummer) &&
-            await kassabuchService.BelegnummerExistiertAsync(belegnummer, ausgenommenId))
-        {
-            ModelState.AddModelError(nameof(KassenbuchungEingabe.Belegnummer), "Diese Belegnummer ist bereits vorhanden.");
-        }
     }
 }

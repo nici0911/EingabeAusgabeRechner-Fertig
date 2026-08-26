@@ -3,11 +3,7 @@ obj/
 .vs/
 *.user
 *.suo
-kassabuch.db
-kassabuch.db
-kassabuch.db-shm
-kassabuch.db-wal
-kassabuch.db-shm
-kassabuch.db-wal
-kassabuch-daten.json
+eingabe-ausgabe-rechner.db
+eingabe-ausgabe-rechner.db-shm
+eingabe-ausgabe-rechner.db-wal
 .dataprotection/

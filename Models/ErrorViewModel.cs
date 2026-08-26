@@ -1,4 +1,4 @@
-namespace Kassabuch.Models;
+namespace EingabeAusgabeRechner.Models;
 
 public class ErrorViewModel
 {

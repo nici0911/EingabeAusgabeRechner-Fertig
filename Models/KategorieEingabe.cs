@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using Kassabuch.Konfiguration;
+using EingabeAusgabeRechner.Konfiguration;
 
-namespace Kassabuch.Models;
+namespace EingabeAusgabeRechner.Models;
 
 public class KategorieEingabe
 {

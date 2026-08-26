@@ -1,6 +1,6 @@
-namespace Kassabuch.Models;
+namespace EingabeAusgabeRechner.Models;
 
-public class KassabuchFilter
+public class BuchungsFilter
 {
     public string? Suche { get; set; }
     public DateTime? Von { get; set; }
@@ -8,6 +8,7 @@ public class KassabuchFilter
     public int? KategorieId { get; set; }
     public decimal? Mindestbetrag { get; set; }
     public decimal? Hoechstbetrag { get; set; }
+    public string DifferenzArt { get; set; } = "alle";
     public string Sortierung { get; set; } = "datum_ab";
     public string Bericht { get; set; } = "monat";
 }

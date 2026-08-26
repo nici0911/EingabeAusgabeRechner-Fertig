@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using Kassabuch.Konfiguration;
+using EingabeAusgabeRechner.Konfiguration;
 
-namespace Kassabuch.Models;
+namespace EingabeAusgabeRechner.Models;
 
 public class Kategorie
 {
@@ -15,5 +15,5 @@ public class Kategorie
     [StringLength(7)]
     public string Farbe { get; set; } = "#6d7a71";
 
-    public ICollection<Kassenbuchung> Buchungen { get; set; } = new List<Kassenbuchung>();
+    public ICollection<Buchung> Buchungen { get; set; } = new List<Buchung>();
 }

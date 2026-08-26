@@ -1,0 +1,112 @@
+@using EingabeAusgabeRechner.Konfiguration
+@model StatistikViewModel
+@{
+    ViewData["Title"] = "Statistik – EingabeAusgabeRechner";
+    var waehrung = CultureInfo.GetCultureInfo("de-AT");
+    var maxDatum = ProjektEinstellungen.MaxDatum.ToString("yyyy-MM-dd");
+    var gesamt = Model.SummeEinnahmen + Model.SummeAusgaben;
+    var einnahmenAnteil = gesamt > 0 ? Model.SummeEinnahmen / gesamt * 100 : 0;
+    var einnahmenAnteilCss = einnahmenAnteil.ToString("0.##", CultureInfo.InvariantCulture) + "%";
+    var groessterKategorieBetrag = Model.KategorieWerte
+        .Select(wert => wert.Einnahmen + wert.Ausgaben)
+        .DefaultIfEmpty(0)
+        .Max();
+}
+
+<section class="page-head">
+    <div>
+        <h1>Statistik</h1>
+        <p>Farbliche Auswertung der gefilterten Einnahmen und Ausgaben.</p>
+    </div>
+    <a asp-action="Index">Zurück zur Übersicht</a>
+</section>
+
+<section class="panel">
+    <div class="row"><h2>Statistik filtern</h2><a asp-action="Statistik">Alle Filter löschen</a></div>
+    <form asp-action="Statistik" method="get" class="statistics-filter">
+        <label>Von<input type="date" name="Von" value="@(Model.Filter.Von?.ToString("yyyy-MM-dd"))" max="@maxDatum" /></label>
+        <label>Bis<input type="date" name="Bis" value="@(Model.Filter.Bis?.ToString("yyyy-MM-dd"))" max="@maxDatum" /></label>
+        <label>Kategorie
+            <select name="KategorieId">
+                <option value="">Alle</option>
+                @foreach (var kategorie in Model.Kategorien)
+                {
+                    <option value="@kategorie.Id" selected="@(Model.Filter.KategorieId == kategorie.Id)">@kategorie.Name</option>
+                }
+            </select>
+        </label>
+        <label>Differenz
+            <select name="DifferenzArt">
+                <option value="alle" selected="@(Model.Filter.DifferenzArt == "alle")">Alle Buchungen</option>
+                <option value="positiv" selected="@(Model.Filter.DifferenzArt == "positiv")">Positiv (Einnahme)</option>
+                <option value="negativ" selected="@(Model.Filter.DifferenzArt == "negativ")">Negativ (Ausgabe)</option>
+            </select>
+        </label>
+        <button type="submit">Auswertung aktualisieren</button>
+    </form>
+</section>
+
+<section class="summary summary-three" aria-label="Statistische Summen">
+    <p><span>Einnahmen</span><strong class="income">@Model.SummeEinnahmen.ToString("C", waehrung)</strong></p>
+    <p><span>Ausgaben</span><strong class="expense">@Model.SummeAusgaben.ToString("C", waehrung)</strong></p>
+    <p><span>Differenz</span><strong class="@(Model.Differenz < 0 ? "expense" : "income")">@Model.Differenz.ToString("C", waehrung)</strong></p>
+</section>
+
+<div class="statistics-grid">
+    <section class="panel chart-panel">
+        <div class="row"><h2>Verteilung</h2><span class="count">@Model.AnzahlBuchungen Buchungen</span></div>
+        <div class="donut @(gesamt == 0 ? "donut-empty" : null)" style="--income-share:@einnahmenAnteilCss">
+            <div class="donut-center">
+                <span>Differenz</span>
+                <strong class="@(Model.Differenz < 0 ? "expense" : "income")">@Model.Differenz.ToString("C", waehrung)</strong>
+            </div>
+        </div>
+        <div class="chart-legend">
+            <span><i class="legend-color income-color"></i>Einnahmen @einnahmenAnteil.ToString("0.#") %</span>
+            <span><i class="legend-color expense-color"></i>Ausgaben @((100 - einnahmenAnteil).ToString("0.#")) %</span>
+        </div>
+    </section>
+
+    <section class="panel category-chart">
+        <h2>Kategorien in Farben</h2>
+        @if (Model.KategorieWerte.Count == 0)
+        {
+            <p class="empty">Für diesen Filter sind keine Buchungen vorhanden.</p>
+        }
+        else
+        {
+            @foreach (var wert in Model.KategorieWerte)
+            {
+                var anteil = groessterKategorieBetrag > 0
+                    ? (wert.Einnahmen + wert.Ausgaben) / groessterKategorieBetrag * 100
+                    : 0;
+                var anteilCss = anteil.ToString("0.##", CultureInfo.InvariantCulture) + "%";
+                <div class="category-bar-row">
+                    <div class="row"><span><i class="dot" style="background:@wert.Farbe"></i>@wert.Name</span><strong>@((wert.Einnahmen + wert.Ausgaben).ToString("C", waehrung))</strong></div>
+                    <div class="category-bar-track"><span style="width:@anteilCss;background:@wert.Farbe"></span></div>
+                </div>
+            }
+        }
+    </section>
+</div>
+
+<section class="panel">
+    <h2>Auswertung nach Kategorie</h2>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Kategorie</th><th class="number">Buchungen</th><th class="number">Einnahmen</th><th class="number">Ausgaben</th><th class="number">Differenz</th></tr></thead>
+            <tbody>
+            @foreach (var wert in Model.KategorieWerte)
+            {
+                <tr>
+                    <td><i class="dot" style="background:@wert.Farbe"></i>@wert.Name</td>
+                    <td class="number">@wert.Anzahl</td>
+                    <td class="number income">@wert.Einnahmen.ToString("C", waehrung)</td>
+                    <td class="number expense">@wert.Ausgaben.ToString("C", waehrung)</td>
+                    <td class="number @(wert.Differenz < 0 ? "expense" : "income")">@wert.Differenz.ToString("C", waehrung)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>
